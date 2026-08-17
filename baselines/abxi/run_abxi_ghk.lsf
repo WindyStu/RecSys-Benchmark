@@ -1,0 +1,31 @@
+#!/bin/bash
+#BSUB -J abxi_ghk
+#BSUB -q gpu
+#BSUB -n 2
+#BSUB -gpu "num=1"
+#BSUB -R "select[hname!='gpu15'] rusage[mem=64000]"
+#BSUB -W 24:00
+#BSUB -o logs/abxi_ghk_%J.out
+#BSUB -e logs/abxi_ghk_%J.err
+
+source ~/miniconda3/etc/profile.d/conda.sh
+conda activate abxi
+
+cd /nfsshare/home/honglu/honglu/research/CHORD/ABXI
+mkdir -p logs
+
+python -c "import torch; print('torch', torch.__version__, 'cuda', torch.cuda.is_available())"
+
+python main.py \
+  --data ghk \
+  --data_root /nfsshare/home/honglu/honglu/research/CHORD/data \
+  --raw \
+  --cuda 0 \
+  --n_warmup 10 \
+  --n_worker 2 \
+  --bs 256 \
+  --lr 1e-4 \
+  --l2 3e0 \
+  --rd 16 \
+  --ri 64 \
+  --seed 3407

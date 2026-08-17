@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PROJECT_ROOT="${PROJECT_ROOT:-$PWD}"
+DATA_ROOT="${DATA_ROOT:-/nfsshare/home/liujingyan/data/CDSR/data}"
+RUN_ROOT="${RUN_ROOT:-/nfsshare/home/liujingyan/eager_runs}"
+WORK_ROOT="${WORK_ROOT:-${RUN_ROOT}/sdsr_work}"
+OUTPUT_ROOT="${OUTPUT_ROOT:-${RUN_ROOT}/sdsr_outputs}"
+PYTHON_BIN="${PYTHON_BIN:-python}"
+DATASET_FILE="${DATASET_FILE:-${PROJECT_ROOT}/lsf/datasets_sdsr.txt}"
+
+if [[ -z "${DATASET:-}" ]]; then
+  mapfile -t DATASETS < <(grep -v '^[[:space:]]*#' "${DATASET_FILE}" | sed '/^[[:space:]]*$/d')
+  DATASET="${DATASETS[$((LSB_JOBINDEX - 1))]}"
+fi
+
+cd "${PROJECT_ROOT}/EAGER"
+
+"${PYTHON_BIN}" eval_sdsr_eager.py \
+  --dataset "${DATASET}" \
+  --data-root "${DATA_ROOT}" \
+  --work-root "${WORK_ROOT}" \
+  --output-root "${OUTPUT_ROOT}" \
+  --test-batch-size "${TEST_BATCH_SIZE:-50}" \
+  --item-batch-size "${ITEM_BATCH_SIZE:-2048}" \
+  --topk 10 \
+  --eval-mode "${EVAL_MODE:-full}" \
+  --num-beams "${NUM_BEAMS:-100}"

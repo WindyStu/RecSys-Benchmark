@@ -1,0 +1,16 @@
+# Python 3.11 + PyTorch 2.6.0/cu124 environment.
+# Install the PyTorch CUDA stack first:
+#   pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu124
+numpy==1.26.4
+pandas==2.2.3
+transformers==4.49.0
+tokenizers==0.21.0
+huggingface-hub==0.29.3
+safetensors==0.5.3
+joblib==1.4.2
+tqdm==4.67.1
+matplotlib==3.10.0
+ipython==8.32.0
+PyYAML==6.0.2
+regex==2024.11.6
+requests==2.32.3

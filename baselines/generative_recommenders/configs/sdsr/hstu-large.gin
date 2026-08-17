@@ -1,0 +1,19 @@
+# HSTU-large configuration for single-domain sequential recommendation (SDSR).
+#
+# Usage:
+#   python3 run_hstu.py --dataset Beauty
+
+hstu_encoder.num_blocks = 4
+hstu_encoder.num_heads = 4
+hstu_encoder.dqk = 200
+hstu_encoder.dv = 200
+hstu_encoder.linear_dropout_rate = 0.2
+hstu_encoder.attn_dropout_rate = 0.0
+hstu_encoder.normalization = "rel_bias"
+hstu_encoder.linear_config = "uvqk"
+hstu_encoder.linear_activation = "silu"
+hstu_encoder.concat_ua = False
+hstu_encoder.enable_relative_attention_bias = True
+
+create_data_loader.prefetch_factor = 128
+create_data_loader.num_workers = 8

@@ -1,0 +1,11 @@
+dataset_id: Beauty
+task: sdsr
+data_root_env: RECSYS_DATA_ROOT
+relative_path: data_SDSR/Beauty
+files:
+  interactions: Beauty.inter.json
+  items: Beauty.item.json
+  semantic_index: Beauty.index.json
+domains:
+  - Beauty
+notes: Real processed data are local-only and must not be committed.

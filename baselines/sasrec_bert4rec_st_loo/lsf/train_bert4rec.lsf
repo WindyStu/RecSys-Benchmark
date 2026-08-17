@@ -1,0 +1,88 @@
+#!/bin/bash
+#BSUB -J rec_train
+#BSUB -q gpu
+#BSUB -n 1
+#BSUB -R "rusage[mem=16000]"
+#BSUB -gpu "num=1"
+#BSUB -W 24:00
+#BSUB -o rec_train_%J.out
+#BSUB -e rec_train_%J.err
+
+set -euo pipefail
+
+PROJECT_ROOT=${PROJECT_ROOT:-$PWD}
+SOURCE_DATA_ROOT=${SOURCE_DATA_ROOT:-/nfsshare/home/liujingyan/data/CDSR/data}
+PYTHON=${PYTHON:-python}
+
+TASK=${TASK:-st}
+MODEL=${MODEL:-bert4rec}
+DATA=${DATA:-abeauty}
+DOMAIN=${DOMAIN:-Beauty}
+DOMAIN_A=${DOMAIN_A:-Beauty}
+DOMAIN_B=${DOMAIN_B:-Electronics}
+MERGE_STRATEGY=${MERGE_STRATEGY:-round_robin}
+
+LEN_MAX=${LEN_MAX:-50}
+SEED=${SEED:-3407}
+BATCH_SIZE=${BATCH_SIZE:-128}
+N_WORKER=${N_WORKER:-1}
+N_EPOCH=${N_EPOCH:-500}
+N_WARMUP=${N_WARMUP:-5}
+LR=${LR:-1e-4}
+L2=${L2:-1e-3}
+MARGIN=${MARGIN:-0.0}
+N_NEG=${N_NEG:-128}
+N_MTC=${N_MTC:-999}
+EVAL_MODE=${EVAL_MODE:-full}
+CUDA_INDEX=${CUDA_INDEX:-0}
+FORCE_SERIALIZE=${FORCE_SERIALIZE:-0}
+
+cd "$PROJECT_ROOT"
+mkdir -p data log
+
+if [ "$TASK" = "st" ]; then
+  "$PYTHON" scripts/prepare_sdsr_data.py single \
+    --source-root "$SOURCE_DATA_ROOT" \
+    --target-root "$PROJECT_ROOT/data" \
+    --domain "$DOMAIN" \
+    --out-name "$DATA" \
+    --len-max "$LEN_MAX"
+elif [ "$TASK" = "dt" ] || [ "$TASK" = "mt" ]; then
+  "$PYTHON" scripts/prepare_sdsr_data.py pair \
+    --source-root "$SOURCE_DATA_ROOT" \
+    --target-root "$PROJECT_ROOT/data" \
+    --domain-a "$DOMAIN_A" \
+    --domain-b "$DOMAIN_B" \
+    --out-name "$DATA" \
+    --len-max "$LEN_MAX" \
+    --merge-strategy "$MERGE_STRATEGY"
+else
+  echo "Unsupported TASK=$TASK. Use st, dt, or mt." >&2
+  exit 2
+fi
+
+SEQ_PKL="$PROJECT_ROOT/data/$DATA/${DATA}_${LEN_MAX}_${MODEL}_${TASK}_seq.pkl"
+RAW_FLAG=()
+if [ "$FORCE_SERIALIZE" = "1" ] || [ ! -f "$SEQ_PKL" ]; then
+  RAW_FLAG=(--raw)
+fi
+
+"$PYTHON" "main_${TASK}.py" \
+  --m "$MODEL" \
+  --data "$DATA" \
+  "${RAW_FLAG[@]}" \
+  --len_max "$LEN_MAX" \
+  --seed "$SEED" \
+  --bs "$BATCH_SIZE" \
+  --n_worker "$N_WORKER" \
+  --n_epoch "$N_EPOCH" \
+  --n_warmup "$N_WARMUP" \
+  --lr "$LR" \
+  --l2 "$L2" \
+  --margin "$MARGIN" \
+  --n_neg "$N_NEG" \
+  --n_mtc "$N_MTC" \
+  --eval_mode "$EVAL_MODE" \
+  --cuda "$CUDA_INDEX"
+
+"$PYTHON" scripts/extract_metrics.py --log-dir "$PROJECT_ROOT/log" --out "$PROJECT_ROOT/log/metrics_summary.csv"

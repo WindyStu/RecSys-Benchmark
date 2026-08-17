@@ -1,0 +1,13 @@
+method_id: hstu
+display_name: HSTU
+method_type: ranker
+source: baselines/generative_recommenders
+adapter: recsys_benchmark.adapters.generative_recommenders.GenerativeRecommendersAdapter
+supported_tasks: [sdsr]
+supported_eval_inputs: [candidate_scores, topk]
+paper: "Actions Speak Louder than Words: Trillion-Parameter Sequential Transducers for Generative Recommendations"
+commands:
+  train: ["python", "main.py", "--gin_config_file", "{method.defaults.gin_config}"]
+defaults:
+  gin_config: configs/ml-1m/hstu-sampled-softmax-n128-large-final.gin
+notes: Large-scale dependencies may require a separate environment.

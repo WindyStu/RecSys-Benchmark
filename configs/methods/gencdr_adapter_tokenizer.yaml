@@ -1,0 +1,10 @@
+method_id: gencdr_adapter_tokenizer
+display_name: GenCDR Adapter Tokenizer
+method_type: component
+source: baselines/gencdr
+adapter: recsys_benchmark.adapters.gencdr.GenCDRAdapter
+supported_tasks: [cdsr]
+supported_eval_inputs: []
+commands:
+  train: ["python", "quantization_adapter.py", "--domain", "{dataset.dataset_id}"]
+notes: Component only; trains domain-adaptive tokenizer stages.

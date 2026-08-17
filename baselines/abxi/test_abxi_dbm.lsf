@@ -1,0 +1,34 @@
+#!/bin/bash
+#BSUB -J abxi_test
+#BSUB -q gpu
+#BSUB -n 4
+#BSUB -gpu "num=1"
+#BSUB -R "rusage[mem=16000]"
+#BSUB -W 01:00
+#BSUB -o logs/abxi_test_%J.out
+#BSUB -e logs/abxi_test_%J.err
+
+source ~/miniconda3/etc/profile.d/conda.sh
+conda activate abxi
+
+cd /nfsshare/home/honglu/honglu/research/CHORD/ABXI
+mkdir -p logs
+
+python -c "import torch; print('torch', torch.__version__, 'cuda', torch.cuda.is_available())"
+
+python main.py \
+  --data dbm \
+  --data_root /nfsshare/home/honglu/honglu/research/CHORD/data \
+  --raw \
+  --cuda 0 \
+  --n_epoch 2 \
+  --n_warmup 1 \
+  --bs 64 \
+  --n_worker 0 \
+  --d_embed 16 \
+  --n_head 2 \
+  --dropout 0.1 \
+  --n_neg 4 \
+  --rd 2 \
+  --ri 2 \
+  --lr_p 1

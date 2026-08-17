@@ -1,0 +1,5 @@
+[
+  {"item_id": "b1", "title": "cleanser", "domain": "Beauty"},
+  {"item_id": "b2", "title": "serum", "domain": "Beauty"},
+  {"item_id": "b3", "title": "lip balm", "domain": "Beauty"}
+]

@@ -1,0 +1,5 @@
+# Do not install torch from this file on the LSF server if torch 2.6.0+cu124
+# is already provided by the cluster environment.
+numpy==1.26.4
+tqdm==4.66.5
+pandas==2.2.2

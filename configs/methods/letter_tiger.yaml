@@ -1,0 +1,11 @@
+method_id: letter_tiger
+display_name: LETTER-TIGER
+method_type: ranker
+source: baselines/letter/LETTER-TIGER
+adapter: recsys_benchmark.adapters.letter.LetterAdapter
+supported_tasks: [sdsr]
+supported_eval_inputs: [topk]
+paper: "Learnable Item Tokenization for Generative Recommendation"
+commands:
+  train: ["bash", "run_train.sh"]
+notes: Requires semantic item IDs produced by the LETTER RQ-VAE tokenizer.

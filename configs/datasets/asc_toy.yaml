@@ -1,0 +1,15 @@
+dataset_id: asc_toy
+task: cdsr
+data_root: examples/toy_cdsr/asc_toy
+files:
+  interactions: asc_toy.inter.json
+  items: asc_toy.item.json
+  semantic_index: asc_toy.index.json
+  map_item: map_item.txt
+  map_user: map_user.txt
+  ground_truth: ground_truth.csv
+  item_metadata: item_metadata.csv
+domains:
+  0: Sports
+  1: Clothing
+notes: Toy CDSR dataset for smoke tests only.

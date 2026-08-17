@@ -1,0 +1,18 @@
+#!/bin/bash
+#BSUB -J bert4rec_metrics
+#BSUB -q normal
+#BSUB -n 1
+#BSUB -R "rusage[mem=2000]"
+#BSUB -W 00:30
+#BSUB -o bert4rec_metrics_%J.out
+#BSUB -e bert4rec_metrics_%J.err
+
+set -euo pipefail
+
+PROJECT_ROOT=${PROJECT_ROOT:-$PWD}
+PYTHON=${PYTHON:-python}
+LOG_DIR=${LOG_DIR:-$PROJECT_ROOT/log}
+OUT_CSV=${OUT_CSV:-$PROJECT_ROOT/log/metrics_summary.csv}
+
+cd "$PROJECT_ROOT"
+"$PYTHON" scripts/extract_metrics.py --log-dir "$LOG_DIR" --out "$OUT_CSV"

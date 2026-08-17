@@ -1,0 +1,14 @@
+dataset_id: asc
+task: cdsr
+data_root_env: RECSYS_DATA_ROOT
+relative_path: data_CDSR/asc
+files:
+  interactions: asc.inter.json
+  items: asc.item.json
+  embeddings: asc.emb-qwen-api-td.npy
+  map_item: map_item.txt
+  map_user: map_user.txt
+domains:
+  0: Sports
+  1: Clothing
+notes: Real processed data are local-only and must not be committed.

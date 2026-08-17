@@ -1,0 +1,4 @@
+raw_sports_1	s1	0
+raw_sports_2	s2	0
+raw_clothing_1	c1	1
+raw_clothing_2	c2	1

@@ -1,0 +1,2 @@
+raw_user_1	u1
+raw_user_2	u2

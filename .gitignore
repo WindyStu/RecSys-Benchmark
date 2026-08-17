@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# IDE and OS
+.idea/
+.vscode/
+.DS_Store
+
+# Local data and generated artifacts
+data/
+outputs/**
+!outputs/.gitkeep
+results/
+logs/
+log/
+runs/
+wandb/
+tmp/
+
+# Model and embedding artifacts
+*.pt
+*.pth
+*.ckpt
+*.pkl
+*.npy
+*.npz
+*.parquet
+*.csv.gz
+*.jsonl
+*.log
+*.err
+*.zip
+*.tar
+*.tar.gz
+
+# Secrets
+.env
+.env.*
+secrets.*

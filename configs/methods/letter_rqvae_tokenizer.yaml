@@ -1,0 +1,10 @@
+method_id: letter_rqvae_tokenizer
+display_name: LETTER RQ-VAE Tokenizer
+method_type: component
+source: baselines/letter/RQ-VAE
+adapter: recsys_benchmark.adapters.letter.LetterAdapter
+supported_tasks: [sdsr]
+supported_eval_inputs: []
+commands:
+  train: ["python", "main.py", "--data_path", "{dataset.data_root}"]
+notes: Component only; it does not enter ranking leaderboards directly.

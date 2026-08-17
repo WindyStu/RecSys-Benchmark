@@ -1,0 +1,5 @@
+user_id,rank,item_id,score,domain,split
+u1,1,b1,0.9,Beauty,test
+u1,2,b2,0.8,Beauty,test
+u2,1,b3,0.7,Beauty,test
+u2,2,b2,0.6,Beauty,test

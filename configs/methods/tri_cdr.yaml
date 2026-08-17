@@ -1,0 +1,11 @@
+method_id: tri_cdr
+display_name: Tri-CDR
+method_type: ranker
+source: baselines/tri_cdr
+adapter: recsys_benchmark.adapters.tri_cdr.TriCDRAdapter
+supported_tasks: [cdsr]
+supported_eval_inputs: [topk]
+paper: "Triple Sequence Learning for Cross-domain Recommendation"
+commands:
+  train: ["python", "Tri_CDR.py", "--dataset", "{dataset.dataset_id}", "--cross_dataset", "{dataset.dataset_id}", "--num_epochs", "1"]
+notes: Original dataset names and source-target direction should be set per experiment.

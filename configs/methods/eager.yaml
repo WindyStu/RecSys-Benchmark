@@ -1,0 +1,11 @@
+method_id: eager
+display_name: EAGER
+method_type: ranker
+source: baselines/eager
+adapter: recsys_benchmark.adapters.eager.EAGERAdapter
+supported_tasks: [sdsr]
+supported_eval_inputs: [topk]
+paper: "EAGER: Two-Stream Generative Recommender with Behavior-Semantic Collaboration"
+commands:
+  train: ["python", "EAGER/run_sdsr_eager.py", "--dataset", "{dataset.dataset_id}", "--seed", "{seed}"]
+notes: DIN pretraining can be registered as a prepare command when checkpoints are available.

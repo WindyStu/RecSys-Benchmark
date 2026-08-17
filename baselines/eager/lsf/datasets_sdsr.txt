@@ -1,0 +1,8 @@
+Cell_Phones
+Clothing
+Douban_Book
+Douban_Movie
+# Electronics
+# Grocery
+# Home_Kitchen
+# Sports

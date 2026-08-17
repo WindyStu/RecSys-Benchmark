@@ -1,0 +1,5 @@
+user_id,rank,item_id,score,domain,split
+u1,1,s1,0.9,Sports,test
+u1,2,c1,0.8,Clothing,test
+u2,1,c2,0.7,Clothing,test
+u2,2,s2,0.6,Sports,test

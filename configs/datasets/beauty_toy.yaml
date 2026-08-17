@@ -1,0 +1,12 @@
+dataset_id: BeautyToy
+task: sdsr
+data_root: examples/toy_sdsr/BeautyToy
+files:
+  interactions: BeautyToy.inter.json
+  items: BeautyToy.item.json
+  semantic_index: BeautyToy.index.json
+  ground_truth: ground_truth.csv
+  item_metadata: item_metadata.csv
+domains:
+  - Beauty
+notes: Toy SDSR dataset for smoke tests only.

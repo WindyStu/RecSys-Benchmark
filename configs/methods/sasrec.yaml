@@ -1,0 +1,11 @@
+method_id: sasrec
+display_name: SASRec
+method_type: ranker
+source: baselines/sasrec_bert4rec_st_loo
+adapter: recsys_benchmark.adapters.sasrec_bert4rec.SASRecBERT4RecAdapter
+supported_tasks: [sdsr, cdsr]
+supported_eval_inputs: [candidate_scores, topk]
+paper: "Self-Attentive Sequential Recommendation"
+commands:
+  train: ["python", "main_st.py", "--model", "SASRec", "--data", "{dataset.dataset_id}", "--seed", "{seed}"]
+notes: Method is hosted in the SASRec-BERT4Rec-ST-LOO codebase.

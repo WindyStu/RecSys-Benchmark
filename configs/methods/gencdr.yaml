@@ -1,0 +1,12 @@
+method_id: gencdr
+display_name: GenCDR
+method_type: ranker
+source: baselines/gencdr
+adapter: recsys_benchmark.adapters.gencdr.GenCDRAdapter
+supported_tasks: [cdsr]
+supported_eval_inputs: [topk]
+paper: "From IDs to Semantics: A Generative Framework for Cross-Domain Recommendation with Adaptive Semantic Tokenization"
+status: partial
+commands:
+  prepare: ["python", "quantization_rqvae.py", "--datasets", "{dataset.dataset_id}"]
+notes: If the local code only covers tokenizer stages, use component configs instead of main leaderboard rows.

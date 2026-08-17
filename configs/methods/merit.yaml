@@ -1,0 +1,11 @@
+method_id: merit
+display_name: MERIT
+method_type: ranker
+source: baselines/merit
+adapter: recsys_benchmark.adapters.merit.MERITAdapter
+supported_tasks: [cdsr]
+supported_eval_inputs: [candidate_scores, topk]
+paper: "Multi-Domain Enhancement via Residual Interwoven Transfer in Cross-Domain Sequential Recommendation"
+commands:
+  train: ["python", "main.py", "--data", "{dataset.dataset_id}", "--seed", "{seed}", "--eval_mode", "{evaluation.protocol}"]
+notes: Defaults to full-ranking evaluation when protocol is full.

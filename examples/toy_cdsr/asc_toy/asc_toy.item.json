@@ -1,0 +1,6 @@
+[
+  {"item_id": "s1", "title": "running shoes", "domain": "Sports"},
+  {"item_id": "s2", "title": "tennis racket", "domain": "Sports"},
+  {"item_id": "c1", "title": "jacket", "domain": "Clothing"},
+  {"item_id": "c2", "title": "shirt", "domain": "Clothing"}
+]

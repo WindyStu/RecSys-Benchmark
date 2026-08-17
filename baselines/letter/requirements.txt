@@ -1,0 +1,13 @@
+k-means-constrained==0.7.3
+numpy==1.26.4
+ortools==9.6.2534
+packaging==26.2
+pandas==2.3.3
+scikit-learn==1.6.1
+scipy==1.13.1
+torch==1.13.1+cu117
+tqdm==4.68.3
+transformers==4.31.0
+wandb==0.26.1
+accelerate==0.21.0
+sentencepiece==0.2.1

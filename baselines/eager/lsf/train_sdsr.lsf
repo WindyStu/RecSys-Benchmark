@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PROJECT_ROOT="${PROJECT_ROOT:-$PWD}"
+DATA_ROOT="${DATA_ROOT:-/nfsshare/home/liujingyan/data/CDSR/data}"
+RUN_ROOT="${RUN_ROOT:-/nfsshare/home/liujingyan/eager_runs}"
+WORK_ROOT="${WORK_ROOT:-${RUN_ROOT}/sdsr_work}"
+OUTPUT_ROOT="${OUTPUT_ROOT:-${RUN_ROOT}/sdsr_outputs}"
+PYTHON_BIN="${PYTHON_BIN:-python}"
+DATASET_FILE="${DATASET_FILE:-${PROJECT_ROOT}/lsf/datasets_sdsr.txt}"
+
+if [[ -z "${DATASET:-}" ]]; then
+  mapfile -t DATASETS < <(grep -v '^[[:space:]]*#' "${DATASET_FILE}" | sed '/^[[:space:]]*$/d')
+  DATASET="${DATASETS[$((LSB_JOBINDEX - 1))]}"
+fi
+
+cd "${PROJECT_ROOT}/EAGER"
+
+COMMON_ARGS=(
+  --dataset "${DATASET}"
+  --data-root "${DATA_ROOT}"
+  --work-root "${WORK_ROOT}"
+  --output-root "${OUTPUT_ROOT}"
+  --seq-len "${SEQ_LEN:-20}"
+  --min-seq-len "${MIN_SEQ_LEN:-5}"
+  --segments "${SEGMENTS:-10}"
+  --seed "${SEED:-2024}"
+)
+
+if [[ "${SKIP_DIN:-0}" != "1" ]]; then
+  "${PYTHON_BIN}" run_sdsr_din.py \
+    "${COMMON_ARGS[@]}" \
+    --batch-size "${DIN_BATCH_SIZE:-128}" \
+    --batch-number "${DIN_BATCH_NUMBER:-80000}" \
+    --eval-every "${DIN_EVAL_EVERY:-0}" \
+    --save-every "${DIN_SAVE_EVERY:-0}" \
+    --sample-negative-num "${DIN_NEGATIVES:-60}"
+fi
+
+"${PYTHON_BIN}" run_sdsr_eager.py \
+  "${COMMON_ARGS[@]}" \
+  --batch-size "${EAGER_BATCH_SIZE:-256}" \
+  --total-batch-num "${EAGER_BATCH_NUMBER:-60000}" \
+  --eval-every "${EAGER_EVAL_EVERY:-0}" \
+  --save-every "${EAGER_SAVE_EVERY:-10000}" \
+  --test-batch-size "${TEST_BATCH_SIZE:-50}" \
+  --topk 10 \
+  --num-beams "${NUM_BEAMS:-100}" \
+  --tree-num "${TREE_NUM:-2}" \
+  --k "${TREE_K:-256}" \
+  --parall "${PARALL:-10}" \
+  ${USE_CON:+--use-con} \
+  ${USE_GUIDE:+--use-guide}
+
+"${PYTHON_BIN}" eval_sdsr_eager.py \
+  --dataset "${DATASET}" \
+  --data-root "${DATA_ROOT}" \
+  --work-root "${WORK_ROOT}" \
+  --output-root "${OUTPUT_ROOT}" \
+  --test-batch-size "${TEST_BATCH_SIZE:-50}" \
+  --item-batch-size "${ITEM_BATCH_SIZE:-2048}" \
+  --topk 10 \
+  --eval-mode "${EVAL_MODE:-full}" \
+  --num-beams "${NUM_BEAMS:-100}"
