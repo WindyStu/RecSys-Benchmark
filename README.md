@@ -36,8 +36,8 @@ Integrated rankers are methods intended to enter leaderboard tables after their 
 | `sr_gnn` | SR-GNN | ranker | `baselines/sasrec_bert4rec_st_loo` | partial |
 | `stosa` | STOSA | ranker | `baselines/sasrec_bert4rec_st_loo` | adapter-ready |
 | `cf_sasrec` | CF-SASRec | ranker | `baselines/letter/CF-SASRec` | adapter-ready |
-| `letter_tiger` | LETTER-TIGER | ranker | `baselines/letter/LETTER-TIGER` | source-integrated |
-| `letter_lc_rec` | LETTER-LC-Rec | ranker | `baselines/letter/LETTER-LC-Rec` | source-integrated |
+| `letter_tiger` | LETTER-TIGER | ranker | `baselines/letter/LETTER-TIGER` | adapter-ready |
+| `letter_lc_rec` | LETTER-LC-Rec | ranker | `baselines/letter/LETTER-LC-Rec` | adapter-ready |
 | `hstu` | HSTU / Generative Recommenders | ranker | `baselines/generative_recommenders` | source-integrated |
 | `gencdr` | GenCDR | ranker or partial pipeline | `baselines/gencdr` | partial |
 
@@ -154,6 +154,8 @@ Run a dual-domain ranker on ASC data with `configs/experiments/asc_abxi.yaml` or
 Run EAGER with `configs/experiments/beauty_eager.yaml`. Its adapter executes DIN pretraining, EAGER training, and a separate full-ranking evaluation with seen-item filtering. Override `method.defaults.din_batches` and `method.defaults.eager_batches` for smoke runs; benchmark results should use the documented defaults or explicitly record the overrides.
 
 Run CF-SASRec with `configs/experiments/beauty_cf_sasrec.yaml`. The adapter links the local dataset into the layout expected by the original code, trains with an explicit seed, exports item embeddings, and collects the test metrics selected by the best validation NDCG.
+
+Run LETTER-TIGER or LETTER-LC-Rec with `beauty_letter_tiger.yaml` or `beauty_letter_lc_rec.yaml`. Supply the external pretrained model without committing a private path, for example `--override method.defaults.base_model=/models/t5-base`. Their train and predict stages are separate, and the generated `mean_results` are normalized into the benchmark metric schema.
 
 Inspect method readiness:
 

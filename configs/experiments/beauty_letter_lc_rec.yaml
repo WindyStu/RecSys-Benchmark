@@ -1,0 +1,8 @@
+experiment_id: beauty_letter_lc_rec
+dataset: beauty
+method: letter_lc_rec
+seed: 42
+evaluation:
+  protocol: full
+  cutoffs: [5, 10]
+output_root: outputs/runs

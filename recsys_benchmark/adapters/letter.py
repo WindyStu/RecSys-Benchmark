@@ -16,19 +16,27 @@ class LetterAdapter(CommandAdapter):
         native_metrics = self.method.get("native_metrics")
         if not isinstance(native_metrics, Mapping):
             return super().evaluate()
-        if native_metrics.get("type") != "cf_sasrec_best_json":
+        metrics_type = native_metrics.get("type")
+        if metrics_type not in {"cf_sasrec_best_json", "letter_result_json"}:
             return super().evaluate()
 
         source_path = self._find_native_result(native_metrics)
         native = json.loads(source_path.read_text(encoding="utf-8"))
-        test_metrics = native.get("test", {})
+        if metrics_type == "cf_sasrec_best_json":
+            raw_metrics = native.get("test", {})
+            hit5, hit10 = raw_metrics["HR@5"], raw_metrics["HR@10"]
+            ndcg5, ndcg10 = raw_metrics["NDCG@5"], raw_metrics["NDCG@10"]
+        else:
+            raw_metrics = native.get("mean_results", {})
+            hit5, hit10 = raw_metrics["hit@5"], raw_metrics["hit@10"]
+            ndcg5, ndcg10 = raw_metrics["ndcg@5"], raw_metrics["ndcg@10"]
         metrics: dict[str, float | str] = {
-            "recall@5": float(test_metrics["HR@5"]),
-            "recall@10": float(test_metrics["HR@10"]),
-            "hitrate@5": float(test_metrics["HR@5"]),
-            "hitrate@10": float(test_metrics["HR@10"]),
-            "ndcg@5": float(test_metrics["NDCG@5"]),
-            "ndcg@10": float(test_metrics["NDCG@10"]),
+            "recall@5": float(hit5),
+            "recall@10": float(hit10),
+            "hitrate@5": float(hit5),
+            "hitrate@10": float(hit10),
+            "ndcg@5": float(ndcg5),
+            "ndcg@10": float(ndcg10),
             "mrr@10": "N/A",
             "precision@5": "N/A",
             "precision@10": "N/A",

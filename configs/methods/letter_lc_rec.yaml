@@ -1,12 +1,28 @@
 method_id: letter_lc_rec
 display_name: LETTER-LC-Rec
 method_type: ranker
-status: source-integrated
+status: adapter-ready
 source: baselines/letter/LETTER-LC-Rec
 adapter: recsys_benchmark.adapters.letter.LetterAdapter
 supported_tasks: [sdsr]
 supported_eval_inputs: [topk]
 paper: "Learnable Item Tokenization for Generative Recommendation"
 commands:
-  train: ["bash", "run_train.sh"]
-notes: Requires semantic item IDs produced by the LETTER RQ-VAE tokenizer.
+  train: ["torchrun", "--nproc_per_node", "{method.defaults.num_gpus}", "--master_port", "{method.defaults.master_port}", "lora_finetune.py", "--base_model", "{method.defaults.base_model}", "--output_dir", "{output_dir}/native/ckpt", "--dataset", "{dataset.dataset_id}", "--data_path", "{dataset.path_root}", "--per_device_batch_size", "{method.defaults.batch_size}", "--learning_rate", "{method.defaults.learning_rate}", "--epochs", "{method.defaults.epochs}", "--tasks", "seqrec", "--train_prompt_sample_num", "1", "--train_data_sample_num", "0", "--index_file", "{method.defaults.index_file}", "--temperature", "1.0", "--seed", "{seed}"]
+  predict: ["torchrun", "--nproc_per_node", "1", "--master_port", "{method.defaults.eval_master_port}", "test_ddp.py", "--ckpt_path", "{output_dir}/native/ckpt", "--base_model", "{method.defaults.base_model}", "--dataset", "{dataset.dataset_id}", "--data_path", "{dataset.path_root}", "--results_file", "{output_dir}/native/results.json", "--test_batch_size", "{method.defaults.test_batch_size}", "--num_beams", "{method.defaults.num_beams}", "--test_prompt_ids", "0", "--index_file", "{method.defaults.index_file}", "--metrics", "hit@1,hit@5,hit@10,ndcg@5,ndcg@10", "--seed", "{seed}"]
+native_metrics:
+  type: letter_result_json
+  log_dir: "{output_dir}/native"
+  pattern: results.json
+defaults:
+  base_model: REPLACE_WITH_LLAMA_BASE_MODEL
+  num_gpus: 1
+  master_port: 29502
+  eval_master_port: 29503
+  batch_size: 16
+  test_batch_size: 1
+  learning_rate: 1e-4
+  epochs: 4
+  num_beams: 20
+  index_file: .index.json
+notes: LoRA training, distributed test generation, and native result collection are wired. Override base_model and validate on the server before marking runnable.
