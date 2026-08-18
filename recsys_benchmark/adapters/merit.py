@@ -1,5 +1,5 @@
-from recsys_benchmark.adapters.command import CommandAdapter
+from recsys_benchmark.adapters.dual_domain import DualDomainLogAdapter
 
 
-class MERITAdapter(CommandAdapter):
+class MERITAdapter(DualDomainLogAdapter):
     pass

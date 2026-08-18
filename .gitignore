@@ -14,6 +14,8 @@ venv/
 
 # Local data and generated artifacts
 data/
+!recsys_benchmark/data/
+!recsys_benchmark/data/*.py
 outputs/**
 !outputs/.gitkeep
 results/

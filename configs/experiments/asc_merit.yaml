@@ -1,0 +1,8 @@
+experiment_id: asc_merit
+dataset: asc
+method: merit
+seed: 3407
+evaluation:
+  protocol: full
+  cutoffs: [5, 10]
+output_root: outputs/runs

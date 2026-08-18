@@ -1,12 +1,20 @@
 method_id: merit
 display_name: MERIT
 method_type: ranker
-status: source-integrated
+status: adapter-ready
 source: baselines/merit
 adapter: recsys_benchmark.adapters.merit.MERITAdapter
 supported_tasks: [cdsr]
 supported_eval_inputs: [candidate_scores, topk]
 paper: "Multi-Domain Enhancement via Residual Interwoven Transfer in Cross-Domain Sequential Recommendation"
 commands:
-  train: ["python", "main.py", "--data", "{dataset.dataset_id}", "--seed", "{seed}", "--eval_mode", "{evaluation.protocol}", "--path_data_root", "{dataset.path_root}"]
-notes: Source and train command are integrated. Unified prediction export is still required before this method is runnable in the benchmark.
+  prepare: ["python", "../../scripts/prepare_cdsr_sequence.py", "--source-dir", "{dataset.path}", "--target-root", "data", "--dataset", "{dataset.dataset_id}", "--len-max", "{method.defaults.len_max}"]
+  train: ["python", "main.py", "--data", "{dataset.dataset_id}", "--path_data_root", "data", "--len_max", "{method.defaults.len_max}", "--cuda", "{method.defaults.cuda}", "--seed", "{seed}", "--eval_mode", "{evaluation.protocol}"]
+native_metrics:
+  type: dual_domain_log
+  log_dir: "{method.source}/log"
+  pattern: "{dataset.dataset_id}-{method.defaults.len_max}-*-MERIT.log"
+defaults:
+  len_max: 50
+  cuda: "0"
+notes: Processed CDSR bridging, training, and dual-domain native metric collection are wired. Server validation is still required.

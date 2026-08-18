@@ -27,8 +27,8 @@ Integrated rankers are methods intended to enter leaderboard tables after their 
 
 | Method ID | Method | Type | Source tree | Status |
 | --- | --- | --- | --- | --- |
-| `abxi` | ABXI | ranker | `baselines/abxi` | source-integrated |
-| `merit` | MERIT | ranker | `baselines/merit` | source-integrated |
+| `abxi` | ABXI | ranker | `baselines/abxi` | adapter-ready |
+| `merit` | MERIT | ranker | `baselines/merit` | adapter-ready |
 | `eager` | EAGER | ranker | `baselines/eager` | source-integrated |
 | `tri_cdr` | Tri-CDR | ranker | `baselines/tri_cdr` | source-integrated |
 | `sasrec` | SASRec | ranker | `baselines/sasrec_bert4rec_st_loo` | adapter-ready |
@@ -148,6 +148,8 @@ python -m recsys_benchmark run \
 ```
 
 Use `beauty_bert4rec.yaml` or `beauty_stosa.yaml` for the other two methods. These adapters prepare the baseline-specific sequence files, invoke the original trainer, and collect the final native HR/NDCG/MRR row into `metrics.json`. Their status remains below `runnable` until a real server run succeeds.
+
+Run a dual-domain ranker on ASC data with `configs/experiments/asc_abxi.yaml` or `configs/experiments/asc_merit.yaml`. The prepare stage remaps the processed mixed sequence into each original implementation's contiguous, 1-based two-domain format. Native A/B metrics are retained as per-domain metrics and macro-averaged for the primary leaderboard columns.
 
 Inspect method readiness:
 
