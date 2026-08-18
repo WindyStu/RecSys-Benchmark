@@ -1,14 +1,24 @@
 method_id: hstu
 display_name: HSTU
 method_type: ranker
-status: source-integrated
+status: adapter-ready
 source: baselines/generative_recommenders
 adapter: recsys_benchmark.adapters.generative_recommenders.GenerativeRecommendersAdapter
 supported_tasks: [sdsr]
 supported_eval_inputs: [candidate_scores, topk]
 paper: "Actions Speak Louder than Words: Trillion-Parameter Sequential Transducers for Generative Recommendations"
 commands:
-  train: ["python", "main.py", "--gin_config_file", "{method.defaults.gin_config}"]
+  train: ["python", "run_hstu.py", "--dataset", "{dataset.dataset_id}", "--data_dir", "{dataset.path_root}", "--gin_config_file", "{method.defaults.gin_config}", "--epochs", "{method.defaults.epochs}", "--batch_size", "{method.defaults.batch_size}", "--eval_batch_size", "{method.defaults.eval_batch_size}", "--lr", "{method.defaults.learning_rate}", "--early_stop_patience", "{method.defaults.early_stop_patience}", "--num_negatives", "{method.defaults.num_negatives}", "--seed", "{seed}", "--output_dir", "{output_dir}/native"]
+native_metrics:
+  type: hstu_checkpoint
+  log_dir: "{output_dir}/native/{dataset.dataset_id}"
+  pattern: best_model.pt
 defaults:
-  gin_config: configs/ml-1m/hstu-sampled-softmax-n128-large-final.gin
-notes: Large-scale dependencies may require a separate environment.
+  gin_config: configs/sdsr/hstu-large.gin
+  epochs: 200
+  batch_size: 128
+  eval_batch_size: 128
+  learning_rate: 1e-3
+  early_stop_patience: 10
+  num_negatives: 128
+notes: The SDSR data loader, HSTU trainer, full-ranking metrics, and best-checkpoint collection are wired. Server validation requires the Generative Recommenders CUDA environment.
