@@ -1,0 +1,8 @@
+experiment_id: asc_gencdr
+dataset: asc
+method: gencdr
+seed: 42
+evaluation:
+  protocol: full
+  cutoffs: [5, 10]
+output_root: outputs/runs

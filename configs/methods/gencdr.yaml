@@ -6,7 +6,27 @@ adapter: recsys_benchmark.adapters.gencdr.GenCDRAdapter
 supported_tasks: [cdsr]
 supported_eval_inputs: [topk]
 paper: "From IDs to Semantics: A Generative Framework for Cross-Domain Recommendation with Adaptive Semantic Tokenization"
-status: partial
+status: adapter-ready
 commands:
-  prepare: ["python", "quantization_rqvae.py", "--datasets", "{dataset.dataset_id}"]
-notes: If the local code only covers tokenizer stages, use component configs instead of main leaderboard rows.
+  prepare: ["python", "export_index.py", "--pair", "{dataset.dataset_id}", "--data_path", "{dataset.path_root}", "--device", "{method.defaults.device}", "--epochs", "{method.defaults.rqvae_epochs}"]
+  train: ["torchrun", "--nproc_per_node", "{method.defaults.num_gpus}", "--master_port", "{method.defaults.master_port}", "stage2_letter/finetune.py", "--stage", "pretrain", "--datasets", "{dataset.dataset_id}", "--dataset", "{dataset.dataset_id}", "--data_path", "{dataset.path_root}", "--base_model", "{method.defaults.base_model}", "--output_dir", "{output_dir}/native/ckpt", "--per_device_batch_size", "{method.defaults.batch_size}", "--learning_rate", "{method.defaults.learning_rate}", "--epochs", "{method.defaults.epochs}", "--index_file", "{method.defaults.index_file}", "--temperature", "{method.defaults.temperature}", "--seed", "{seed}"]
+  predict: ["python", "stage2_letter/test.py", "--gpu_id", "{method.defaults.gpu_id}", "--ckpt_path", "{output_dir}/native/ckpt", "--pretrained_model", "{output_dir}/native/ckpt", "--dataset", "{dataset.dataset_id}", "--data_path", "{dataset.path_root}", "--results_file", "{output_dir}/native/results.json", "--test_batch_size", "{method.defaults.test_batch_size}", "--num_beams", "{method.defaults.num_beams}", "--test_prompt_ids", "0", "--index_file", "{method.defaults.index_file}", "--metrics", "hit@1,hit@5,hit@10,ndcg@5,ndcg@10", "--seed", "{seed}"]
+native_metrics:
+  type: letter_result_json
+  log_dir: "{output_dir}/native"
+  pattern: results.json
+defaults:
+  base_model: REPLACE_WITH_T5_BASE_MODEL
+  device: cuda:0
+  rqvae_epochs: 1000
+  num_gpus: 1
+  master_port: 29501
+  gpu_id: 0
+  batch_size: 256
+  test_batch_size: 32
+  learning_rate: 5e-4
+  epochs: 200
+  num_beams: 20
+  temperature: 1.0
+  index_file: .index.json
+notes: RQ-VAE semantic ID export, cross-domain generative ranker training, explicit prediction, and native metric collection are wired. Override base_model and validate on the server before marking runnable.

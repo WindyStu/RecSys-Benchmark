@@ -39,7 +39,7 @@ Integrated rankers are methods intended to enter leaderboard tables after their 
 | `letter_tiger` | LETTER-TIGER | ranker | `baselines/letter/LETTER-TIGER` | adapter-ready |
 | `letter_lc_rec` | LETTER-LC-Rec | ranker | `baselines/letter/LETTER-LC-Rec` | adapter-ready |
 | `hstu` | HSTU / Generative Recommenders | ranker | `baselines/generative_recommenders` | adapter-ready |
-| `gencdr` | GenCDR | ranker or partial pipeline | `baselines/gencdr` | partial |
+| `gencdr` | GenCDR | ranker | `baselines/gencdr` | adapter-ready |
 
 Status meanings:
 
@@ -158,6 +158,8 @@ Run CF-SASRec with `configs/experiments/beauty_cf_sasrec.yaml`. The adapter link
 Run LETTER-TIGER or LETTER-LC-Rec with `beauty_letter_tiger.yaml` or `beauty_letter_lc_rec.yaml`. Supply the external pretrained model without committing a private path, for example `--override method.defaults.base_model=/models/t5-base`. Their train and predict stages are separate, and the generated `mean_results` are normalized into the benchmark metric schema.
 
 Run HSTU with `configs/experiments/beauty_hstu.yaml`. This uses the repository's SDSR-specific entrypoint and gin architecture config, then reads full-ranking HR/NDCG from the best checkpoint. Install the baseline's CUDA/fbgemm dependencies in a dedicated environment before the server run.
+
+Run GenCDR with `configs/experiments/asc_gencdr.yaml`. The prepare stage trains its RQ-VAE tokenizer from the processed item embeddings and writes `asc.index.json` beside the local dataset. The train and predict stages then run the included cross-domain generative ranker and normalize its generated-ranking HR/NDCG JSON. Supply the external T5 model with `--override method.defaults.base_model=/models/t5-base`; no model or private path is committed.
 
 Inspect method readiness:
 

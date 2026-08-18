@@ -1,5 +1,5 @@
-from recsys_benchmark.adapters.command import CommandAdapter
+from recsys_benchmark.adapters.letter import LetterAdapter
 
 
-class GenCDRAdapter(CommandAdapter):
-    pass
+class GenCDRAdapter(LetterAdapter):
+    """Adapter for GenCDR semantic tokenization and generative ranking."""
