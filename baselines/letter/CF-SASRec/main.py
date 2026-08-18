@@ -4,6 +4,7 @@ import logging
 import multiprocessing
 import os
 import pickle
+import random
 import time
 import datetime
 
@@ -47,6 +48,7 @@ def parse_args():
     parser.add_argument("--n_workers", default=3, type=int)
     parser.add_argument("--patience", default=10, type=int)
     parser.add_argument("--log_file", default=None, type=str)
+    parser.add_argument("--seed", default=42, type=int)
     return parser.parse_args()
 
 
@@ -116,6 +118,10 @@ def export_item_embeddings(model, output_path):
 
 def main():
     args = parse_args()
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    torch.cuda.manual_seed_all(args.seed)
     logger, key_log_file = setup_key_logger(args.log_file, args.dataset)
     logger.info("CF-SASRec started [dataset=%s, train_dir=%s, key_log=%s]", args.dataset, args.train_dir, key_log_file)
     logger.info("args: %s", vars(args))

@@ -19,7 +19,7 @@ class CommandAdapter(BaseAdapter):
         binding_result = self._materialize_data_bindings()
         command_result = self._run_stage("prepare")
         if command_result.get("status") == "skipped" and binding_result["bindings"]:
-            return {"status": "prepared", "stage": "prepare", **binding_result}
+            return {"status": "prepared", "stage": "prepare", "data_bindings": binding_result["bindings"]}
         if binding_result["bindings"]:
             command_result["data_bindings"] = binding_result["bindings"]
         return command_result
@@ -91,10 +91,14 @@ class CommandAdapter(BaseAdapter):
 
     def _materialize_data_bindings(self) -> dict[str, Any]:
         bindings = []
+        dry_run = bool(self.config.get("dry_run", False))
         for binding in self.method.get("data_bindings", []):
             source = Path(self._render(str(binding["from"])))
             target = Path(self._render(str(binding["to"])))
             mode = str(binding.get("mode", "copy"))
+            if dry_run:
+                bindings.append({"from": str(source), "to": str(target), "mode": mode, "status": "planned"})
+                continue
             if not source.exists():
                 raise FileNotFoundError(f"data binding source does not exist: {source}")
             target.parent.mkdir(parents=True, exist_ok=True)

@@ -35,7 +35,7 @@ Integrated rankers are methods intended to enter leaderboard tables after their 
 | `bert4rec` | BERT4Rec | ranker | `baselines/sasrec_bert4rec_st_loo` | adapter-ready |
 | `sr_gnn` | SR-GNN | ranker | `baselines/sasrec_bert4rec_st_loo` | partial |
 | `stosa` | STOSA | ranker | `baselines/sasrec_bert4rec_st_loo` | adapter-ready |
-| `cf_sasrec` | CF-SASRec | ranker | `baselines/letter/CF-SASRec` | source-integrated |
+| `cf_sasrec` | CF-SASRec | ranker | `baselines/letter/CF-SASRec` | adapter-ready |
 | `letter_tiger` | LETTER-TIGER | ranker | `baselines/letter/LETTER-TIGER` | source-integrated |
 | `letter_lc_rec` | LETTER-LC-Rec | ranker | `baselines/letter/LETTER-LC-Rec` | source-integrated |
 | `hstu` | HSTU / Generative Recommenders | ranker | `baselines/generative_recommenders` | source-integrated |
@@ -152,6 +152,8 @@ Use `beauty_bert4rec.yaml` or `beauty_stosa.yaml` for the other two methods. The
 Run a dual-domain ranker on ASC data with `configs/experiments/asc_abxi.yaml` or `configs/experiments/asc_merit.yaml`. The prepare stage remaps the processed mixed sequence into each original implementation's contiguous, 1-based two-domain format. Native A/B metrics are retained as per-domain metrics and macro-averaged for the primary leaderboard columns.
 
 Run EAGER with `configs/experiments/beauty_eager.yaml`. Its adapter executes DIN pretraining, EAGER training, and a separate full-ranking evaluation with seen-item filtering. Override `method.defaults.din_batches` and `method.defaults.eager_batches` for smoke runs; benchmark results should use the documented defaults or explicitly record the overrides.
+
+Run CF-SASRec with `configs/experiments/beauty_cf_sasrec.yaml`. The adapter links the local dataset into the layout expected by the original code, trains with an explicit seed, exports item embeddings, and collects the test metrics selected by the best validation NDCG.
 
 Inspect method readiness:
 

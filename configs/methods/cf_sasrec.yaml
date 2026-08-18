@@ -1,12 +1,24 @@
 method_id: cf_sasrec
 display_name: CF-SASRec
 method_type: ranker
-status: source-integrated
+status: adapter-ready
 source: baselines/letter/CF-SASRec
 adapter: recsys_benchmark.adapters.letter.LetterAdapter
 supported_tasks: [sdsr]
 supported_eval_inputs: [candidate_scores, topk]
 paper: "Collaborative-filtering SASRec variant used with LETTER experiments"
 commands:
-  train: ["python", "main.py", "--dataset", "{dataset.dataset_id}", "--seed", "{seed}"]
-notes: Hosted in the local my_letter codebase.
+  train: ["python", "main.py", "--dataset", "{dataset.dataset_id}", "--train_dir", "benchmark", "--device", "{method.defaults.device}", "--num_epochs", "{method.defaults.epochs}", "--eval_step", "{method.defaults.eval_step}", "--topk", "5", "10", "--metrics_path", "{output_dir}/native/cf_sasrec_metrics.json", "--output_path", "{output_dir}/native/item_embeddings.pt", "--cache_dir", "{output_dir}/native/cache", "--seed", "{seed}"]
+data_bindings:
+  - from: "{dataset.path}"
+    to: "{method.source}/data/{dataset.dataset_id}"
+    mode: symlink
+native_metrics:
+  type: cf_sasrec_best_json
+  log_dir: "{output_dir}/native"
+  pattern: cf_sasrec_metrics.best.json
+defaults:
+  device: cuda:0
+  epochs: 201
+  eval_step: 5
+notes: Data binding, reproducible full-ranking training, best-test metric collection, and embedding export are wired. Server validation is still required.
