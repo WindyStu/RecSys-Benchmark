@@ -30,7 +30,7 @@ Integrated rankers are methods intended to enter leaderboard tables after their 
 | `abxi` | ABXI | ranker | `baselines/abxi` | adapter-ready |
 | `merit` | MERIT | ranker | `baselines/merit` | adapter-ready |
 | `eager` | EAGER | ranker | `baselines/eager` | adapter-ready |
-| `tri_cdr` | Tri-CDR | ranker | `baselines/tri_cdr` | source-integrated |
+| `tri_cdr` | Tri-CDR | ranker | `baselines/tri_cdr` | adapter-ready |
 | `sasrec` | SASRec | ranker | `baselines/sasrec_bert4rec_st_loo` | adapter-ready |
 | `bert4rec` | BERT4Rec | ranker | `baselines/sasrec_bert4rec_st_loo` | adapter-ready |
 | `sr_gnn` | SR-GNN | ranker | `baselines/sasrec_bert4rec_st_loo` | adapter-ready |
@@ -160,6 +160,8 @@ Run LETTER-TIGER or LETTER-LC-Rec with `beauty_letter_tiger.yaml` or `beauty_let
 Run HSTU with `configs/experiments/beauty_hstu.yaml`. This uses the repository's SDSR-specific entrypoint and gin architecture config, then reads full-ranking HR/NDCG from the best checkpoint. Install the baseline's CUDA/fbgemm dependencies in a dedicated environment before the server run.
 
 Run GenCDR with `configs/experiments/asc_gencdr.yaml`. The prepare stage trains its RQ-VAE tokenizer from the processed item embeddings and writes `asc.index.json` beside the local dataset. The train and predict stages then run the included cross-domain generative ranker and normalize its generated-ranking HR/NDCG JSON. Supply the external T5 model with `--override method.defaults.base_model=/models/t5-base`; no model or private path is committed.
+
+Run Tri-CDR with `configs/experiments/asc_tri_cdr.yaml`. Its generic loader consumes the mixed `asc.inter.json` sequence and domain labels in `map_item.txt`, remaps both domains into the contiguous ranges required by the original sampler, and evaluates domain 1 (Clothing) as the target by default. This is the paper implementation's sampled-100 protocol, so the aggregator keeps it separate from full-ranking runs. Reverse the direction by overriding `method.defaults.target_domain=0`, `method.defaults.target_alias=amazon_toy`, and the direction-specific loss weights.
 
 Inspect method readiness:
 

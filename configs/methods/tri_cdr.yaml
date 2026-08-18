@@ -1,12 +1,31 @@
 method_id: tri_cdr
 display_name: Tri-CDR
 method_type: ranker
-status: source-integrated
+status: adapter-ready
 source: baselines/tri_cdr
 adapter: recsys_benchmark.adapters.tri_cdr.TriCDRAdapter
 supported_tasks: [cdsr]
 supported_eval_inputs: [topk]
 paper: "Triple Sequence Learning for Cross-domain Recommendation"
 commands:
-  train: ["python", "Tri_CDR.py", "--dataset", "{dataset.dataset_id}", "--cross_dataset", "{dataset.dataset_id}", "--num_epochs", "1"]
-notes: Original dataset names and source-target direction should be set per experiment.
+  train: ["python", "Tri_CDR.py", "--dataset", "{method.defaults.target_alias}", "--cross_dataset", "{dataset.dataset_id}", "--data_dir", "{dataset.path}", "--target_domain", "{method.defaults.target_domain}", "--result_path", "{output_dir}/native", "--num_epochs", "{method.defaults.num_epochs}", "--batch_size", "{method.defaults.batch_size}", "--maxlen", "{method.defaults.maxlen}", "--device", "{method.defaults.device}", "--num_samples", "{method.defaults.num_samples}", "--n_workers", "{method.defaults.n_workers}", "--rate_mix_source", "{method.defaults.rate_mix_source}", "--rate_mix_target", "{method.defaults.rate_mix_target}", "--rate_source_target", "{method.defaults.rate_source_target}", "--cl_weight", "{method.defaults.cl_weight}", "--triplet_weight", "{method.defaults.triplet_weight}", "--triplet_margin", "{method.defaults.triplet_margin}", "--seed", "{seed}"]
+native_metrics:
+  type: tri_cdr_log
+  log_dir: "{output_dir}/native"
+  pattern: test_performance.txt
+defaults:
+  target_alias: amazon_game
+  target_domain: 1
+  num_epochs: 1000
+  batch_size: 120
+  maxlen: 200
+  device: cuda:0
+  num_samples: 100
+  n_workers: 3
+  rate_mix_source: 1000.0
+  rate_mix_target: 1.0
+  rate_source_target: 1.0
+  cl_weight: 4.0
+  triplet_weight: 5.0
+  triplet_margin: 20.0
+notes: Generic two-domain JSON loading, target-domain training, sampled-100 evaluation, and native metric collection are wired. The default ASC direction is domain 0 to domain 1; server/GPU validation is still required.

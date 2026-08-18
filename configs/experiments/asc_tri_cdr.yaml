@@ -1,0 +1,9 @@
+experiment_id: asc_tri_cdr
+dataset: asc
+method: tri_cdr
+seed: 5
+evaluation:
+  protocol: sampled
+  cutoffs: [5, 10]
+  candidate_count: 100
+output_root: outputs/runs

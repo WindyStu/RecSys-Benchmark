@@ -2,7 +2,10 @@ import os
 import time
 import torch
 import argparse
-import ipdb
+try:
+    import ipdb
+except ImportError:
+    ipdb = None
 
 from model import SASRec_V12_time_final
 from model import EarlyStopping_onetower
@@ -12,20 +15,15 @@ from utils import *
 import os
 import io
 
-from matplotlib.pyplot import MultipleLocator
-
-import matplotlib.pyplot as plt
-plt.switch_backend('agg')
+try:
+    import matplotlib.pyplot as plt
+    plt.switch_backend('agg')
+except ImportError:
+    plt = None
 
 # -*- coding: UTF-8 -*-
 np.set_printoptions(suppress=True)
 np.set_printoptions(threshold=2000)
-
-from matplotlib.font_manager import FontManager
-fm = FontManager()
-mat_fonts = set(f.name for f in fm.ttflist)
-print(mat_fonts)
-
 
 def str2bool(s):
     if s not in {'false', 'true'}:
@@ -59,6 +57,10 @@ def get_updateModel(model, path_mix, path_source, path_target):
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', required=True)
 parser.add_argument('--cross_dataset', required=True)
+parser.add_argument('--data_dir', default=None, type=str)
+parser.add_argument('--target_domain', default=1, choices=[0, 1], type=int)
+parser.add_argument('--result_path', default=None, type=str)
+parser.add_argument('--n_workers', default=3, type=int)
 parser.add_argument('--batch_size', default=120, type=int)
 parser.add_argument('--lr', default=0.001, type=float)
 parser.add_argument('--maxlen', default=200, type=int)
@@ -103,7 +105,8 @@ torch.cuda.manual_seed_all(SEED)
 
 
 
-result_path = './Log_File_' + str(args.dataset) + '/Tri-CDR/'
+result_path = args.result_path or ('./Log_File_' + str(args.dataset) + '/Tri-CDR/')
+result_path = os.path.abspath(result_path) + os.sep
 print("Save in path:", result_path)
 if not os.path.isdir(result_path):
     os.makedirs(result_path)
@@ -130,11 +133,14 @@ if __name__ == '__main__':
     # global dataset
 #     ipdb.set_trace()
 #     print(os.getcwd())
-    dataset = data_partition(args.version, args.dataset, args.cross_dataset, args.maxlen)
+    if args.data_dir:
+        dataset = data_partition_generic(args.data_dir, args.cross_dataset, args.target_domain)
+    else:
+        dataset = data_partition(args.version, args.dataset, args.cross_dataset, args.maxlen)
 
     [user_train_mix, user_train_source, user_train_target, user_valid_target, user_test_target, user_train_mix_sequence_for_target, user_train_source_sequence_for_target, usernum, itemnum, interval] = dataset
 #     [user_train_source, user_train_target, user_valid_source, user_valid_target, user_test_source, user_test_target, usernum, itemnum, interval] = dataset
-    num_batch = len(user_train_source) // args.batch_size # 908
+    num_batch = max(1, len(user_train_source) // args.batch_size) # 908
     cc_source = 0.0
     cc_target = 0.0
     for u in user_train_source:
@@ -144,7 +150,7 @@ if __name__ == '__main__':
     print('average sequence length in target domain: %.2f' % (cc_target / len(user_train_source)))
     print('average sequence length in both domain: %.2f' % ((cc_source + cc_target) / len(user_train_source)))
 
-    sampler = WarpSampler(args.version, args.dataset, args.cross_dataset, interval, user_train_mix, user_train_source, user_train_target, user_train_mix_sequence_for_target, user_train_source_sequence_for_target, usernum, itemnum, None, None, SEED, batch_size=args.batch_size, maxlen=args.maxlen, n_workers=3)
+    sampler = WarpSampler(args.version, args.dataset, args.cross_dataset, interval, user_train_mix, user_train_source, user_train_target, user_train_mix_sequence_for_target, user_train_source_sequence_for_target, usernum, itemnum, None, None, SEED, batch_size=args.batch_size, maxlen=args.maxlen, n_workers=args.n_workers)
     model = SASRec_V12_time_final(usernum, itemnum, args).to(args.device)
     for name, param in model.named_parameters():
         try:
@@ -291,25 +297,24 @@ if __name__ == '__main__':
     
     sampler.close()
 
-    plt.figure(figsize=(15, 8)) 
-    plt.subplots_adjust(left=0.03, bottom=0.03, right=0.97, top=0.97)
-    plt.step(epoch_list, lr_list, "green", marker="8", markersize=5, label="lr")
-    plt.legend(loc='upper right')
-    plt.savefig(result_path + 'lr_plot.png')
-    plt.close()
+    if plt is not None:
+        plt.figure(figsize=(15, 8))
+        plt.subplots_adjust(left=0.03, bottom=0.03, right=0.97, top=0.97)
+        plt.step(epoch_list, lr_list, "green", marker="8", markersize=5, label="lr")
+        plt.legend(loc='upper right')
+        plt.savefig(result_path + 'lr_plot.png')
+        plt.close()
 
-#     ipdb.set_trace()
-
-    plt.figure(figsize=(15, 8))
-    plt.subplots_adjust(left=0.03, bottom=0.03, right=0.97, top=0.97)
-    plt.plot(epoch_list, loss_train_rec_list, "black", marker="o", markersize=5, label="loss_train_rec")
-    plt.plot(epoch_list, loss_train_cl_list, "green", marker="<", markersize=5, label="loss_train_cl")
-    plt.plot(epoch_list, loss_train_triplet_list, "red", marker="v", markersize=5, label="loss_train_triplet")
-    plt.plot(epoch_list, loss_train_list, "gray", marker=">", markersize=5, label="loss_train_all")
-    plt.plot(epoch_list, loss_test_list, "red", marker="v", markersize=5, label="loss_test_rec")
-    plt.plot(epoch_list, ndcg_list, "blue", marker="X", markersize=5, label="ndcg_test")
-    plt.plot(epoch_list, hr_list, "yellow", marker="s", markersize=5, label="hr_test")
-    plt.plot(epoch_list, auc_list, "orange", marker="P", markersize=5, label="auc_test")
-    plt.legend(loc='upper right')
-    plt.savefig(result_path + 'performance_plot.png')
-    plt.close()
+        plt.figure(figsize=(15, 8))
+        plt.subplots_adjust(left=0.03, bottom=0.03, right=0.97, top=0.97)
+        plt.plot(epoch_list, loss_train_rec_list, "black", marker="o", markersize=5, label="loss_train_rec")
+        plt.plot(epoch_list, loss_train_cl_list, "green", marker="<", markersize=5, label="loss_train_cl")
+        plt.plot(epoch_list, loss_train_triplet_list, "red", marker="v", markersize=5, label="loss_train_triplet")
+        plt.plot(epoch_list, loss_train_list, "gray", marker=">", markersize=5, label="loss_train_all")
+        plt.plot(epoch_list, loss_test_list, "red", marker="v", markersize=5, label="loss_test_rec")
+        plt.plot(epoch_list, ndcg_list, "blue", marker="X", markersize=5, label="ndcg_test")
+        plt.plot(epoch_list, hr_list, "yellow", marker="s", markersize=5, label="hr_test")
+        plt.plot(epoch_list, auc_list, "orange", marker="P", markersize=5, label="auc_test")
+        plt.legend(loc='upper right')
+        plt.savefig(result_path + 'performance_plot.png')
+        plt.close()

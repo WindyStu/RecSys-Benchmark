@@ -1,11 +1,16 @@
 import sys
 import copy
+import json
 import torch
 import random
 import numpy as np
 from collections import defaultdict
 from multiprocessing import Process, Queue
-import ipdb
+from pathlib import Path
+try:
+    import ipdb
+except ImportError:
+    ipdb = None
 import dill as pkl
 import time
 from sklearn.metrics import roc_auc_score
@@ -128,6 +133,125 @@ class WarpSampler(object):
         for p in self.processors:
             p.terminate()
             p.join()   
+
+
+def data_partition_generic(data_dir, dataset_name, target_domain):
+    """Build Tri-CDR's triple-sequence split from benchmark CDSR JSON files."""
+    if target_domain not in (0, 1):
+        raise ValueError("target_domain must be 0 or 1")
+
+    root = Path(data_dir)
+    with (root / f"{dataset_name}.inter.json").open("r", encoding="utf-8") as f:
+        interactions = json.load(f)
+    with (root / "map_item.txt").open("r", encoding="utf-8") as f:
+        item_mapping = json.load(f)
+
+    domain_by_old = {}
+    items_by_domain = {0: set(), 1: set()}
+    for value in item_mapping.values():
+        old_item, domain = int(value[0]), int(value[1])
+        if domain not in items_by_domain:
+            raise ValueError(f"Unsupported domain label in map_item.txt: {domain}")
+        if old_item in domain_by_old and domain_by_old[old_item] != domain:
+            raise ValueError(f"Item {old_item} has conflicting domain labels")
+        domain_by_old[old_item] = domain
+        items_by_domain[domain].add(old_item)
+
+    remap = {}
+    for index, old_item in enumerate(sorted(items_by_domain[0]), start=1):
+        remap[old_item] = index
+    interval = len(items_by_domain[0])
+    for index, old_item in enumerate(sorted(items_by_domain[1]), start=interval + 1):
+        remap[old_item] = index
+    domain_by_item = {remap[item]: domain for item, domain in domain_by_old.items()}
+
+    user_train_mix = {}
+    user_train_source = {}
+    user_train_target = {}
+    user_valid_target = {}
+    user_test_target = {}
+    mix_positions = {}
+    source_positions = {}
+
+    user_id = 0
+    for user in sorted(interactions, key=_stable_key):
+        old_sequence = [int(item) for item in interactions[user]]
+        missing = [item for item in old_sequence if item not in remap]
+        if missing:
+            raise ValueError(f"Interaction items missing from map_item.txt: {missing[:3]}")
+        sequence = [remap[item] for item in old_sequence]
+        target_indices = [
+            index for index, item in enumerate(sequence) if domain_by_item[item] == target_domain
+        ]
+        if len(target_indices) < 4:
+            continue
+
+        sequence = sequence[: target_indices[-1] + 1]
+        target_indices = [
+            index for index, item in enumerate(sequence) if domain_by_item[item] == target_domain
+        ]
+        source = [item for item in sequence if domain_by_item[item] != target_domain]
+        if len(source) < 2:
+            continue
+
+        target = [sequence[index] for index in target_indices]
+        held_out = set(target_indices[-2:])
+        train_mix = [item for index, item in enumerate(sequence) if index not in held_out]
+        train_target = target[:-2]
+        target_mix_positions, target_source_positions = _target_history_offsets(
+            train_mix, source, domain_by_item, target_domain
+        )
+
+        user_id += 1
+        user_train_mix[user_id] = train_mix
+        user_train_source[user_id] = source
+        user_train_target[user_id] = train_target
+        user_valid_target[user_id] = [target[-2]]
+        user_test_target[user_id] = [target[-1]]
+        mix_positions[user_id] = target_mix_positions
+        source_positions[user_id] = target_source_positions
+
+    if user_id == 0:
+        raise ValueError("No users have at least two source and four target interactions")
+
+    return [
+        user_train_mix,
+        user_train_source,
+        user_train_target,
+        user_valid_target,
+        user_test_target,
+        mix_positions,
+        source_positions,
+        user_id,
+        len(remap),
+        interval,
+    ]
+
+
+def _target_history_offsets(train_mix, source, domain_by_item, target_domain):
+    mix_offsets = []
+    source_offsets = []
+    mix_position = len(train_mix) - 1
+    source_position = len(source) - 1
+    for item in reversed(train_mix):
+        if domain_by_item[item] != target_domain:
+            source_position -= 1
+        else:
+            mix_offsets.append(mix_position - 1)
+            source_offsets.append(source_position)
+        mix_position -= 1
+
+    mix_offsets = list(reversed(mix_offsets[:-1]))
+    source_offsets = list(reversed(source_offsets[:-1]))
+    return (
+        [position - len(train_mix) for position in mix_offsets],
+        [position - len(source) for position in source_offsets],
+    )
+
+
+def _stable_key(value):
+    text = str(value)
+    return (0, int(text)) if text.isdigit() else (1, text)
             
             
             

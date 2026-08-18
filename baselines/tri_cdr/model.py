@@ -1,6 +1,9 @@
 import numpy as np
 import torch
-import ipdb
+try:
+    import ipdb
+except ImportError:
+    ipdb = None
 import torch.nn.functional as F
 from torch import Tensor
 import math
@@ -247,10 +250,10 @@ class SASRec_V12_time_final(torch.nn.Module):
 #                     ipdb.set_trace()
                     matrix_mix, end_position_mix = self.get_mask_matrix(mix_log_seqs, user_train_mix_sequence_for_target_indices, i)
                     matrix_source, end_position_source = self.get_mask_matrix(source_log_seqs, user_train_source_sequence_for_target_indices, i)
-                    mix_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], mix_log_feats_sas, matrix_mix.cuda(), mix_log_feats_sas, matrix_mix.cuda())
-                    source_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], source_log_feats_sas, matrix_source.cuda(), mix_log_feats_sas, matrix_mix.cuda())
+                    mix_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], mix_log_feats_sas, matrix_mix.to(self.dev), mix_log_feats_sas, matrix_mix.to(self.dev))
+                    source_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], source_log_feats_sas, matrix_source.to(self.dev), mix_log_feats_sas, matrix_mix.to(self.dev))
         
-                    target_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], target_log_feats_sas[:, 0:i+1, :], torch.tensor(target_log_seqs[:, 0:i+1]).cuda(), mix_log_feats_sas, matrix_mix.cuda())
+                    target_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], target_log_feats_sas[:, 0:i+1, :], torch.tensor(target_log_seqs[:, 0:i+1]).to(self.dev), mix_log_feats_sas, matrix_mix.to(self.dev))
                     mix_log_feats = torch.cat([mix_log_feats, mix_log_feats_final_dim.unsqueeze(1)], dim=1)
                     source_log_feats = torch.cat([source_log_feats, source_log_feats_final_dim.unsqueeze(1)], dim=1)
                     target_log_feats = torch.cat([target_log_feats, target_log_feats_final_dim.unsqueeze(1)], dim=1)
@@ -262,9 +265,9 @@ class SASRec_V12_time_final(torch.nn.Module):
 #                     ipdb.set_trace()
                     matrix_mix, end_position_mix = self.get_mask_matrix(mix_log_seqs, user_train_mix_sequence_for_target_indices, i)
                     matrix_source, end_position_source = self.get_mask_matrix(source_log_seqs, user_train_source_sequence_for_target_indices, i)
-                    mix_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], mix_log_feats_sas, matrix_mix.cuda(), mix_log_feats_sas, matrix_mix.cuda())
-                    source_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], source_log_feats_sas, matrix_source.cuda(), mix_log_feats_sas, matrix_mix.cuda())
-                    target_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], target_log_feats_sas[:, start_index_target:i+1, :], torch.tensor(target_log_seqs[:, start_index_target:i+1]).cuda(), mix_log_feats_sas, matrix_mix.cuda())
+                    mix_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], mix_log_feats_sas, matrix_mix.to(self.dev), mix_log_feats_sas, matrix_mix.to(self.dev))
+                    source_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], source_log_feats_sas, matrix_source.to(self.dev), mix_log_feats_sas, matrix_mix.to(self.dev))
+                    target_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], target_log_feats_sas[:, start_index_target:i+1, :], torch.tensor(target_log_seqs[:, start_index_target:i+1]).to(self.dev), mix_log_feats_sas, matrix_mix.to(self.dev))
                     mix_log_feats = torch.cat([mix_log_feats, mix_log_feats_final_dim.unsqueeze(1)], dim=1)
                     source_log_feats = torch.cat([source_log_feats, source_log_feats_final_dim.unsqueeze(1)], dim=1)
                     target_log_feats = torch.cat([target_log_feats, target_log_feats_final_dim.unsqueeze(1)], dim=1)
@@ -290,10 +293,10 @@ class SASRec_V12_time_final(torch.nn.Module):
 #                     ipdb.set_trace()
                     matrix_mix, end_position_mix = self.get_mask_matrix(mix_log_seqs, user_train_mix_sequence_for_target_indices, i)
                     matrix_source, end_position_source = self.get_mask_matrix(source_log_seqs, user_train_source_sequence_for_target_indices, i)
-                    mix_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], mix_log_feats_sas, matrix_mix.cuda(), mix_log_feats_sas, matrix_mix.cuda())
-                    source_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], source_log_feats_sas, matrix_source.cuda(), mix_log_feats_sas, matrix_mix.cuda())
+                    mix_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], mix_log_feats_sas, matrix_mix.to(self.dev), mix_log_feats_sas, matrix_mix.to(self.dev))
+                    source_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], source_log_feats_sas, matrix_source.to(self.dev), mix_log_feats_sas, matrix_mix.to(self.dev))
         
-                    target_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], target_log_feats_sas[:, 0:i+1, :], torch.tensor(target_log_seqs[:, 0:i+1]).cuda(), mix_log_feats_sas, matrix_mix.cuda())
+                    target_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], target_log_feats_sas[:, 0:i+1, :], torch.tensor(target_log_seqs[:, 0:i+1]).to(self.dev), mix_log_feats_sas, matrix_mix.to(self.dev))
                     mix_log_feats = torch.cat([mix_log_feats, mix_log_feats_final_dim.unsqueeze(1)], dim=1)
                     source_log_feats = torch.cat([source_log_feats, source_log_feats_final_dim.unsqueeze(1)], dim=1)
                     target_log_feats = torch.cat([target_log_feats, target_log_feats_final_dim.unsqueeze(1)], dim=1)
@@ -305,9 +308,9 @@ class SASRec_V12_time_final(torch.nn.Module):
 #                     ipdb.set_trace()
                     matrix_mix, end_position_mix = self.get_mask_matrix(mix_log_seqs, user_train_mix_sequence_for_target_indices, i)
                     matrix_source, end_position_source = self.get_mask_matrix(source_log_seqs, user_train_source_sequence_for_target_indices, i)
-                    mix_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], mix_log_feats_sas, matrix_mix.cuda(), mix_log_feats_sas, matrix_mix.cuda())
-                    source_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], source_log_feats_sas, matrix_source.cuda(), mix_log_feats_sas, matrix_mix.cuda())
-                    target_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], target_log_feats_sas[:, start_index_target:i+1, :], torch.tensor(target_log_seqs[:, start_index_target:i+1]).cuda(), mix_log_feats_sas, matrix_mix.cuda())
+                    mix_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], mix_log_feats_sas, matrix_mix.to(self.dev), mix_log_feats_sas, matrix_mix.to(self.dev))
+                    source_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], source_log_feats_sas, matrix_source.to(self.dev), mix_log_feats_sas, matrix_mix.to(self.dev))
+                    target_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, i, :], target_log_feats_sas[:, start_index_target:i+1, :], torch.tensor(target_log_seqs[:, start_index_target:i+1]).to(self.dev), mix_log_feats_sas, matrix_mix.to(self.dev))
                     mix_log_feats = torch.cat([mix_log_feats, mix_log_feats_final_dim.unsqueeze(1)], dim=1)
                     source_log_feats = torch.cat([source_log_feats, source_log_feats_final_dim.unsqueeze(1)], dim=1)
                     target_log_feats = torch.cat([target_log_feats, target_log_feats_final_dim.unsqueeze(1)], dim=1)
@@ -345,12 +348,12 @@ class SASRec_V12_time_final(torch.nn.Module):
 #             ipdb.set_trace()
 #             # Attention for the last dimension
                 # Attention in the mix domain for the last dimension
-            position = 200
-            mix_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, position-1, :], mix_log_feats_sas, torch.tensor(mix_log_seqs).cuda(), mix_log_feats_sas, torch.tensor(mix_log_seqs).cuda())
+            position = target_log_seqs.shape[1]
+            mix_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, position-1, :], mix_log_feats_sas, torch.tensor(mix_log_seqs).to(self.dev), mix_log_feats_sas, torch.tensor(mix_log_seqs).to(self.dev))
                 # Attention in the source domain for the last dimension
-            source_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, position-1, :], source_log_feats_sas, torch.tensor(source_log_seqs).cuda(), mix_log_feats_sas, torch.tensor(mix_log_seqs).cuda())
+            source_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, position-1, :], source_log_feats_sas, torch.tensor(source_log_seqs).to(self.dev), mix_log_feats_sas, torch.tensor(mix_log_seqs).to(self.dev))
                 # Attention in the target domain for the last dimension
-            target_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, position-1, :], target_log_feats_sas, torch.tensor(target_log_seqs).cuda(), mix_log_feats_sas, torch.tensor(mix_log_seqs).cuda())
+            target_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, position-1, :], target_log_feats_sas, torch.tensor(target_log_seqs).to(self.dev), mix_log_feats_sas, torch.tensor(mix_log_seqs).to(self.dev))
 
             concatenate_log_feats = torch.cat([mix_log_feats_final_dim, source_log_feats_final_dim, target_log_feats_final_dim], dim=1)
             final_feat = self.log_feat_map2(self.leakyrelu(self.log_feat_map1(concatenate_log_feats)))
@@ -363,13 +366,13 @@ class SASRec_V12_time_final(torch.nn.Module):
             target_log_feats_sas = self.sasrec_embedding_source(target_log_seqs) # torch.Size([128, 200, 64])
             
             # Attention for the last dimension
-            position = 200
+            position = target_log_seqs.shape[1]
                 # Attention in the source domain for the last dimension
-            mix_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, position-1, :], mix_log_feats_sas, torch.tensor(mix_log_seqs).cuda(), mix_log_feats_sas, torch.tensor(mix_log_seqs).cuda())
+            mix_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, position-1, :], mix_log_feats_sas, torch.tensor(mix_log_seqs).to(self.dev), mix_log_feats_sas, torch.tensor(mix_log_seqs).to(self.dev))
                 # Attention in the source domain for the last dimension
-            source_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, position-1, :], source_log_feats_sas, torch.tensor(source_log_seqs).cuda(), mix_log_feats_sas, torch.tensor(mix_log_seqs).cuda())
+            source_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, position-1, :], source_log_feats_sas, torch.tensor(source_log_seqs).to(self.dev), mix_log_feats_sas, torch.tensor(mix_log_seqs).to(self.dev))
                 # Attention in the target domain for the last dimension
-            target_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, position-1, :], target_log_feats_sas, torch.tensor(target_log_seqs).cuda(), mix_log_feats_sas, torch.tensor(mix_log_seqs).cuda())
+            target_log_feats_final_dim = self.DINAttentionLayer_withmixattn(target_log_feats_sas[:, position-1, :], target_log_feats_sas, torch.tensor(target_log_seqs).to(self.dev), mix_log_feats_sas, torch.tensor(mix_log_seqs).to(self.dev))
             
             
             concatenate_log_feats = torch.cat([mix_log_feats_final_dim, source_log_feats_final_dim, target_log_feats_final_dim], dim=1)
