@@ -1,6 +1,7 @@
 method_id: gencdr_adapter_tokenizer
 display_name: GenCDR Adapter Tokenizer
 method_type: component
+status: adapter-ready
 source: baselines/gencdr
 adapter: recsys_benchmark.adapters.gencdr.GenCDRAdapter
 supported_tasks: [cdsr]

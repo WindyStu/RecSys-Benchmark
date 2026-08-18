@@ -27,19 +27,27 @@ Integrated rankers are methods intended to enter leaderboard tables after their 
 
 | Method ID | Method | Type | Source tree | Status |
 | --- | --- | --- | --- | --- |
-| `abxi` | ABXI | ranker | `baselines/abxi` | scaffolded |
-| `merit` | MERIT | ranker | `baselines/merit` | scaffolded |
-| `eager` | EAGER | ranker | `baselines/eager` | scaffolded |
-| `tri_cdr` | Tri-CDR | ranker | `baselines/tri_cdr` | scaffolded |
-| `sasrec` | SASRec | ranker | `baselines/sasrec_bert4rec_st_loo` | scaffolded |
-| `bert4rec` | BERT4Rec | ranker | `baselines/sasrec_bert4rec_st_loo` | scaffolded |
-| `sr_gnn` | SR-GNN | ranker | `baselines/sasrec_bert4rec_st_loo` | scaffolded |
-| `stosa` | STOSA | ranker | `baselines/sasrec_bert4rec_st_loo` | scaffolded |
-| `cf_sasrec` | CF-SASRec | ranker | `baselines/letter/CF-SASRec` | scaffolded |
-| `letter_tiger` | LETTER-TIGER | ranker | `baselines/letter/LETTER-TIGER` | scaffolded |
-| `letter_lc_rec` | LETTER-LC-Rec | ranker | `baselines/letter/LETTER-LC-Rec` | scaffolded |
-| `hstu` | HSTU / Generative Recommenders | ranker | `baselines/generative_recommenders` | scaffolded |
+| `abxi` | ABXI | ranker | `baselines/abxi` | source-integrated |
+| `merit` | MERIT | ranker | `baselines/merit` | source-integrated |
+| `eager` | EAGER | ranker | `baselines/eager` | source-integrated |
+| `tri_cdr` | Tri-CDR | ranker | `baselines/tri_cdr` | source-integrated |
+| `sasrec` | SASRec | ranker | `baselines/sasrec_bert4rec_st_loo` | source-integrated |
+| `bert4rec` | BERT4Rec | ranker | `baselines/sasrec_bert4rec_st_loo` | source-integrated |
+| `sr_gnn` | SR-GNN | ranker | `baselines/sasrec_bert4rec_st_loo` | partial |
+| `stosa` | STOSA | ranker | `baselines/sasrec_bert4rec_st_loo` | source-integrated |
+| `cf_sasrec` | CF-SASRec | ranker | `baselines/letter/CF-SASRec` | source-integrated |
+| `letter_tiger` | LETTER-TIGER | ranker | `baselines/letter/LETTER-TIGER` | source-integrated |
+| `letter_lc_rec` | LETTER-LC-Rec | ranker | `baselines/letter/LETTER-LC-Rec` | source-integrated |
+| `hstu` | HSTU / Generative Recommenders | ranker | `baselines/generative_recommenders` | source-integrated |
 | `gencdr` | GenCDR | ranker or partial pipeline | `baselines/gencdr` | partial |
+
+Status meanings:
+
+- `source-integrated`: sanitized source, method YAML, command adapter, and train command are present; unified prediction export is still missing.
+- `adapter-ready`: the method/component has a complete adapter contract and can be invoked through the benchmark interface.
+- `runnable`: at least one real dataset/seed has completed train or predict through the benchmark and produced unified artifacts.
+- `reproduced`: multi-seed results have been checked against local or paper numbers.
+- `partial`: only part of the method pipeline is integrated, or the copied source lacks a complete ranker entrypoint.
 
 Pipeline components are tracked but do not directly enter Recall/NDCG leaderboards.
 
@@ -129,6 +137,14 @@ Dry-run a configured method adapter:
 python -m recsys_benchmark run \
   --config configs/experiments/toy_sdsr_sasrec_dryrun.yaml \
   --dry-run
+```
+
+Inspect method readiness:
+
+```bash
+python -m recsys_benchmark inspect-methods \
+  --methods configs/methods \
+  --output outputs/method_readiness.json
 ```
 
 ## Unified Configuration

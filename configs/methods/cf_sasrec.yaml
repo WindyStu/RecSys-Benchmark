@@ -1,6 +1,7 @@
 method_id: cf_sasrec
 display_name: CF-SASRec
 method_type: ranker
+status: source-integrated
 source: baselines/letter/CF-SASRec
 adapter: recsys_benchmark.adapters.letter.LetterAdapter
 supported_tasks: [sdsr]

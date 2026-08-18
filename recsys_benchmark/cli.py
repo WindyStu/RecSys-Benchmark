@@ -9,6 +9,7 @@ from typing import Any
 
 from recsys_benchmark.aggregator.results import aggregate_runs, write_leaderboard
 from recsys_benchmark.config.loader import load_experiment_config, parse_overrides, save_resolved_config
+from recsys_benchmark.config.readiness import inspect_methods
 from recsys_benchmark.evaluator.runner import run_evaluation
 
 
@@ -21,6 +22,8 @@ def main(argv: list[str] | None = None) -> int:
         return _aggregate(args)
     if args.command == "run":
         return _run(args)
+    if args.command == "inspect-methods":
+        return _inspect_methods(args)
     parser.print_help()
     return 1
 
@@ -54,6 +57,10 @@ def build_parser() -> argparse.ArgumentParser:
     aggregate_parser.add_argument("--results", default="outputs/runs")
     aggregate_parser.add_argument("--output-csv", default="results/leaderboard.csv")
     aggregate_parser.add_argument("--output-md", default="results/leaderboard.md")
+
+    inspect_parser = subparsers.add_parser("inspect-methods", help="Inspect method YAML readiness status")
+    inspect_parser.add_argument("--methods", default="configs/methods")
+    inspect_parser.add_argument("--output")
     return parser
 
 
@@ -100,6 +107,18 @@ def _evaluate(args: argparse.Namespace) -> int:
 def _aggregate(args: argparse.Namespace) -> int:
     rows = aggregate_runs(args.results)
     write_leaderboard(rows, args.output_csv, args.output_md)
+    return 0
+
+
+def _inspect_methods(args: argparse.Namespace) -> int:
+    report = inspect_methods(args.methods)
+    text = json.dumps(report, indent=2, sort_keys=True)
+    if args.output:
+        output = Path(args.output)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(text + "\n", encoding="utf-8")
+    else:
+        print(text)
     return 0
 
 

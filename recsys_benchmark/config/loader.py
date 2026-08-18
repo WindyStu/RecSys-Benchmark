@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import os
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -24,6 +25,7 @@ def load_experiment_config(
         raise ValueError("Experiment config must define method")
 
     dataset = _load_yaml(root / "datasets" / f"{dataset_id}.yaml")
+    dataset = _resolve_dataset_path(dataset, root)
     method = _load_yaml(root / "methods" / f"{method_id}.yaml")
 
     resolved = deepcopy(experiment)
@@ -58,6 +60,29 @@ def _load_yaml(path: Path) -> dict[str, Any]:
     if not isinstance(loaded, dict):
         raise ValueError(f"YAML file must contain a mapping: {path}")
     return loaded
+
+
+def _resolve_dataset_path(dataset: dict[str, Any], config_root: Path) -> dict[str, Any]:
+    resolved = dict(dataset)
+    project_root = config_root.parent if config_root.name == "configs" else config_root
+    if resolved.get("data_root_env"):
+        env_name = str(resolved["data_root_env"])
+        if env_name in os.environ:
+            base = Path(os.environ[env_name])
+            relative = resolved.get("relative_path")
+            path = (base / str(relative)).resolve() if relative else base.resolve()
+            resolved["path"] = str(path)
+            resolved["path_root"] = str(path.parent)
+        return resolved
+    if resolved.get("data_root"):
+        data_root = Path(str(resolved["data_root"]))
+        if not data_root.is_absolute():
+            data_root = project_root / data_root
+        relative = resolved.get("relative_path")
+        path = (data_root / str(relative)).resolve() if relative else data_root.resolve()
+        resolved["path"] = str(path)
+        resolved["path_root"] = str(path.parent)
+    return resolved
 
 
 def _set_dotted(config: dict[str, Any], dotted_key: str, value: Any) -> None:

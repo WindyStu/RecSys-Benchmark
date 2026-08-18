@@ -1,11 +1,12 @@
 method_id: merit
 display_name: MERIT
 method_type: ranker
+status: source-integrated
 source: baselines/merit
 adapter: recsys_benchmark.adapters.merit.MERITAdapter
 supported_tasks: [cdsr]
 supported_eval_inputs: [candidate_scores, topk]
 paper: "Multi-Domain Enhancement via Residual Interwoven Transfer in Cross-Domain Sequential Recommendation"
 commands:
-  train: ["python", "main.py", "--data", "{dataset.dataset_id}", "--seed", "{seed}", "--eval_mode", "{evaluation.protocol}"]
-notes: Defaults to full-ranking evaluation when protocol is full.
+  train: ["python", "main.py", "--data", "{dataset.dataset_id}", "--seed", "{seed}", "--eval_mode", "{evaluation.protocol}", "--path_data_root", "{dataset.path_root}"]
+notes: Source and train command are integrated. Unified prediction export is still required before this method is runnable in the benchmark.

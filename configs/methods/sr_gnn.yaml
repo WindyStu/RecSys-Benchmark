@@ -1,11 +1,12 @@
 method_id: sr_gnn
 display_name: SR-GNN
 method_type: ranker
+status: partial
 source: baselines/sasrec_bert4rec_st_loo
 adapter: recsys_benchmark.adapters.sasrec_bert4rec.SASRecBERT4RecAdapter
 supported_tasks: [sdsr]
 supported_eval_inputs: [candidate_scores, topk]
 paper: "Session-based Recommendation with Graph Neural Networks"
 commands:
-  train: ["python", "main_st.py", "--model", "SR_GNN", "--data", "{dataset.dataset_id}", "--seed", "{seed}"]
-notes: Present in the shared baseline codebase.
+  train: ["python", "main_st.py", "--m", "sr_gnn", "--data", "{dataset.dataset_id}", "--seed", "{seed}"]
+notes: SR-GNN source file exists, but the sanitized main_st/main_mt/main_dt entrypoints do not currently dispatch to sr_gnn. Needs an entrypoint adapter before runnable.

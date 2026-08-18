@@ -1,6 +1,7 @@
 method_id: letter_tiger
 display_name: LETTER-TIGER
 method_type: ranker
+status: source-integrated
 source: baselines/letter/LETTER-TIGER
 adapter: recsys_benchmark.adapters.letter.LetterAdapter
 supported_tasks: [sdsr]

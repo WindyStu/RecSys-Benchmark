@@ -1,11 +1,12 @@
 method_id: bert4rec
 display_name: BERT4Rec
 method_type: ranker
+status: source-integrated
 source: baselines/sasrec_bert4rec_st_loo
 adapter: recsys_benchmark.adapters.sasrec_bert4rec.SASRecBERT4RecAdapter
 supported_tasks: [sdsr, cdsr]
 supported_eval_inputs: [candidate_scores, topk]
 paper: "BERT4Rec: Sequential Recommendation with Bidirectional Encoder Representations from Transformer"
 commands:
-  train: ["python", "main_st.py", "--model", "BERT4Rec", "--data", "{dataset.dataset_id}", "--seed", "{seed}"]
-notes: Method is hosted in the SASRec-BERT4Rec-ST-LOO codebase.
+  train: ["python", "main_st.py", "--m", "bert4rec", "--data", "{dataset.dataset_id}", "--seed", "{seed}", "--eval_mode", "{evaluation.protocol}"]
+notes: Source and train command are integrated. Unified prediction export is still required before this method is runnable in the benchmark.

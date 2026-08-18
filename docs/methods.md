@@ -36,9 +36,18 @@ Each method has a YAML file in `configs/methods/` with:
 
 - `method_id`
 - `method_type`
+- `status`
 - `source`
 - `adapter`
 - `supported_tasks`
 - `supported_eval_inputs`
 - command templates
 - notes and citation metadata when available
+
+## Status
+
+- `source-integrated`: sanitized source, YAML registry, adapter class, and command templates exist. Unified prediction export is not complete yet.
+- `adapter-ready`: the method or component has a complete benchmark contract and can be invoked through the adapter interface.
+- `runnable`: a real dataset and seed have completed through the benchmark interface and produced artifacts.
+- `reproduced`: multi-seed results have been compared with local historical or paper numbers.
+- `partial`: only a component or incomplete ranker path is integrated.

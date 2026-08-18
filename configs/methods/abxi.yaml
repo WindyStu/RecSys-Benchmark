@@ -1,11 +1,12 @@
 method_id: abxi
 display_name: ABXI
 method_type: ranker
+status: source-integrated
 source: baselines/abxi
 adapter: recsys_benchmark.adapters.abxi.ABXIAdapter
 supported_tasks: [cdsr]
 supported_eval_inputs: [candidate_scores, topk]
 paper: "ABXI: Invariant Interest Adaptation for Task-Guided Cross-Domain Sequential Recommendation"
 commands:
-  train: ["python", "main.py", "--data", "{dataset.dataset_id}", "--seed", "{seed}"]
-notes: Command template may need dataset-specific hyperparameters before real runs.
+  train: ["python", "main.py", "--data", "{dataset.dataset_id}", "--seed", "{seed}", "--data_root", "{dataset.path_root}"]
+notes: Source and train command are integrated. Unified prediction export is still required before this method is runnable in the benchmark.

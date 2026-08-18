@@ -47,6 +47,36 @@ class CliTest(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         self.assertAlmostEqual(record["metrics"]["recall@1"], 1.0)
 
+    def test_inspect_methods_command_writes_readiness_report(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            methods = root / "methods"
+            methods.mkdir()
+            source = root / "source"
+            source.mkdir()
+            (methods / "toy.yaml").write_text(
+                f"""
+method_id: toy
+method_type: ranker
+source: {source.as_posix()}
+adapter: recsys_benchmark.adapters.command.CommandAdapter
+commands:
+  train: [python, train.py]
+prediction:
+  input_type: topk
+  path: outputs/topk.csv
+""",
+                encoding="utf-8",
+            )
+            output = root / "readiness.json"
+
+            exit_code = main(["inspect-methods", "--methods", str(methods), "--output", str(output)])
+            report = json.loads(output.read_text(encoding="utf-8"))
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(report[0]["method_id"], "toy")
+        self.assertEqual(report[0]["computed_status"], "adapter-ready")
+
 
 if __name__ == "__main__":
     unittest.main()

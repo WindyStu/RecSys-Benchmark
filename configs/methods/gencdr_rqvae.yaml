@@ -1,6 +1,7 @@
 method_id: gencdr_rqvae
 display_name: GenCDR RQ-VAE
 method_type: component
+status: adapter-ready
 source: baselines/gencdr
 adapter: recsys_benchmark.adapters.gencdr.GenCDRAdapter
 supported_tasks: [cdsr]

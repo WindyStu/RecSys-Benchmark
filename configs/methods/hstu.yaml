@@ -1,6 +1,7 @@
 method_id: hstu
 display_name: HSTU
 method_type: ranker
+status: source-integrated
 source: baselines/generative_recommenders
 adapter: recsys_benchmark.adapters.generative_recommenders.GenerativeRecommendersAdapter
 supported_tasks: [sdsr]

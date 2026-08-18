@@ -1,6 +1,7 @@
 method_id: letter_lc_rec
 display_name: LETTER-LC-Rec
 method_type: ranker
+status: source-integrated
 source: baselines/letter/LETTER-LC-Rec
 adapter: recsys_benchmark.adapters.letter.LetterAdapter
 supported_tasks: [sdsr]

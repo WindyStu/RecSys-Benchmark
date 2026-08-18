@@ -1,6 +1,7 @@
 method_id: tri_cdr
 display_name: Tri-CDR
 method_type: ranker
+status: source-integrated
 source: baselines/tri_cdr
 adapter: recsys_benchmark.adapters.tri_cdr.TriCDRAdapter
 supported_tasks: [cdsr]

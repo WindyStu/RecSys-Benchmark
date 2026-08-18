@@ -62,6 +62,8 @@ class ConfigLoaderTest(unittest.TestCase):
         self.assertEqual(config["seed"], 1)
         self.assertEqual(config["evaluation"]["protocol"], "sampled")
         self.assertEqual(config["method"]["defaults"]["batch_size"], 64)
+        self.assertEqual(config["dataset"]["path"], str((root / "examples" / "toy_sdsr").resolve()))
+        self.assertEqual(config["dataset"]["path_root"], str((root / "examples").resolve()))
 
 
 if __name__ == "__main__":

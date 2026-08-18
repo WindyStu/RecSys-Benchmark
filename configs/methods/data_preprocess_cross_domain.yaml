@@ -1,6 +1,7 @@
 method_id: data_preprocess_cross_domain
 display_name: Cross-domain Preprocessing
 method_type: component
+status: adapter-ready
 source: baselines/letter/data_process
 adapter: recsys_benchmark.adapters.command.CommandAdapter
 supported_tasks: [cdsr]

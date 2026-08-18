@@ -1,6 +1,7 @@
 method_id: letter_rqvae_tokenizer
 display_name: LETTER RQ-VAE Tokenizer
 method_type: component
+status: adapter-ready
 source: baselines/letter/RQ-VAE
 adapter: recsys_benchmark.adapters.letter.LetterAdapter
 supported_tasks: [sdsr]
