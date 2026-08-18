@@ -40,7 +40,10 @@ def _missing_contract_fields(config: dict[str, Any]) -> list[str]:
         if not any(stage in commands for stage in ("train", "predict")):
             missing.append("commands.train_or_predict")
         prediction = config.get("prediction") or {}
-        for field in ("input_type", "path"):
-            if not prediction.get(field):
-                missing.append(f"prediction.{field}")
+        native_metrics = config.get("native_metrics") or {}
+        has_prediction = prediction.get("input_type") and prediction.get("path")
+        has_native_metrics = native_metrics.get("type") and native_metrics.get("log_dir") and native_metrics.get("pattern")
+        if not has_prediction and not has_native_metrics:
+            missing.append("prediction.input_type")
+            missing.append("prediction.path")
     return missing
