@@ -190,7 +190,7 @@ Run EAGER with `configs/experiments/beauty_eager.yaml`. Its adapter executes DIN
 
 Run CF-SASRec with `configs/experiments/beauty_cf_sasrec.yaml`. The adapter links the local dataset into the layout expected by the original code, trains with an explicit seed, exports item embeddings, and collects the test metrics selected by the best validation NDCG.
 
-Run LETTER-TIGER or LETTER-LC-Rec with `beauty_letter_tiger.yaml` or `beauty_letter_lc_rec.yaml`. Supply the external pretrained model without committing a private path, for example `--override method.defaults.base_model=/models/t5-base`. Their train and predict stages are separate, and the generated `mean_results` are normalized into the benchmark metric schema.
+Run LETTER-TIGER or LETTER-LC-Rec with `beauty_letter_tiger.yaml` or `beauty_letter_lc_rec.yaml`. Supply the matching external pretrained model without committing a private path: T5 for LETTER-TIGER or LLaMA for LETTER-LC-Rec, through `--override method.defaults.base_model=/models/...`. Their train and predict stages are separate, and the generated `mean_results` are normalized into the benchmark metric schema.
 
 Run HSTU with `configs/experiments/beauty_hstu.yaml`. This uses the repository's SDSR-specific entrypoint and gin architecture config, then reads full-ranking HR/NDCG from the best checkpoint. Install the baseline's CUDA/fbgemm dependencies in a dedicated environment before the server run.
 
