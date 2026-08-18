@@ -2,7 +2,7 @@ method_id: text_embedding_aliyun
 display_name: Aliyun Text Embedding
 method_type: component
 status: adapter-ready
-source: baselines/letter/data_process
+source: data_preprocessing
 adapter: recsys_benchmark.adapters.command.CommandAdapter
 supported_tasks: [sdsr, cdsr]
 supported_eval_inputs: []
@@ -11,4 +11,6 @@ commands:
 environment:
   required:
     - ALIYUN_API_KEY
+  optional:
+    - ALIYUN_BASE_URL
 notes: API keys must come from environment variables.

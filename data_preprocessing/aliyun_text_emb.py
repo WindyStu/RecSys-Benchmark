@@ -12,8 +12,7 @@ from numpy.lib.format import open_memmap
 from openai import OpenAI
 
 
-DEFAULT_API_KEY = "REPLACE_WITH_ENV_VAR"
-DEFAULT_BASE_URL = "REPLACE_WITH_BASE_URL"
+DEFAULT_BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
 
 
 def str2bool(value):
@@ -137,13 +136,13 @@ def embed_batch(client: OpenAI, args, item_batch: List[Tuple[int, List[str]]]):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Generate LETTER item text embeddings with Aliyun Bailian API.")
+    parser = argparse.ArgumentParser(description="Generate benchmark item text embeddings with Aliyun Bailian API.")
     parser.add_argument("--dataset", type=str, default="Beauty")
     parser.add_argument("--root", type=str, default="data", help="Data root containing <dataset>/<dataset>.item.json.")
     parser.add_argument("--item_path", type=str, default="", help="Override item json path.")
     parser.add_argument("--output_path", type=str, default="", help="Override output .npy path.")
-    parser.add_argument("--api_key", type=str, default=DEFAULT_API_KEY)
-    parser.add_argument("--base_url", type=str, default=DEFAULT_BASE_URL)
+    parser.add_argument("--api_key", type=str, default=os.getenv("ALIYUN_API_KEY", ""))
+    parser.add_argument("--base_url", type=str, default=os.getenv("ALIYUN_BASE_URL", DEFAULT_BASE_URL))
     parser.add_argument("--model", type=str, default="text-embedding-v4")
     parser.add_argument("--dimensions", type=int, default=2048)
     parser.add_argument("--plm_name", type=str, default="qwen-api")
@@ -162,6 +161,8 @@ def parse_args():
 
 def main():
     args = parse_args()
+    if not args.api_key:
+        raise ValueError("Set ALIYUN_API_KEY or pass --api_key before requesting embeddings.")
     if args.api_batch_size <= 0 or args.api_batch_size > 10:
         raise ValueError("--api_batch_size must be in [1, 10].")
     if args.batch_size <= 0:

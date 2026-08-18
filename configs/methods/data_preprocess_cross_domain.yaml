@@ -2,10 +2,10 @@ method_id: data_preprocess_cross_domain
 display_name: Cross-domain Preprocessing
 method_type: component
 status: adapter-ready
-source: baselines/letter/data_process
+source: data_preprocessing
 adapter: recsys_benchmark.adapters.command.CommandAdapter
 supported_tasks: [cdsr]
 supported_eval_inputs: []
 commands:
   prepare: ["python", "preprocess_cross_domain.py"]
-notes: Builds mixed-domain sequences, map_item.txt, and map_user.txt.
+notes: Builds mixed-domain sequences, map_item.txt, and map_user.txt. Raw roots come from AMAZON_RAW_ROOT and DOUBAN_RAW_ROOT.

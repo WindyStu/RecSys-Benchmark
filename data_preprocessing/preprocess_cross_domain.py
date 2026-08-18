@@ -18,60 +18,64 @@ import re
 import sys
 from collections import defaultdict
 from datetime import datetime
+from pathlib import Path
 
 
 # ---- Config ----
 
-CROSS_DOMAIN_CONFIGS = {
-    "asc": {
-        "a": {
-            "name": "Sports",
-            "reviews": r"D:\data\amazon\Sports_and_Outdoors_5.json",
-            "meta":    r"D:\data\amazon\meta_Sports_and_Outdoors.json",
-            "format": "amazon",
+def build_cross_domain_configs(amazon_root, douban_root):
+    amazon_root = Path(amazon_root)
+    douban_root = Path(douban_root)
+    return {
+        "asc": {
+            "a": {
+                "name": "Sports",
+                "reviews": str(amazon_root / "Sports_and_Outdoors_5.json"),
+                "meta": str(amazon_root / "meta_Sports_and_Outdoors.json"),
+                "format": "amazon",
+            },
+            "b": {
+                "name": "Clothing",
+                "reviews": str(amazon_root / "Clothing_Shoes_and_Jewelry_5.json"),
+                "meta": str(amazon_root / "meta_Clothing_Shoes_and_Jewelry.json"),
+                "format": "amazon",
+            },
         },
-        "b": {
-            "name": "Clothing",
-            "reviews": r"D:\data\amazon\Clothing_Shoes_and_Jewelry_5.json",
-            "meta":    r"D:\data\amazon\meta_Clothing_Shoes_and_Jewelry.json",
-            "format": "amazon",
+        "ape": {
+            "a": {
+                "name": "Cell_Phones",
+                "reviews": str(amazon_root / "Cell_Phones_and_Accessories_5.json"),
+                "meta": str(amazon_root / "meta_Cell_Phones_and_Accessories.json"),
+                "format": "amazon",
+            },
+            "b": {
+                "name": "Electronics",
+                "reviews": str(amazon_root / "Electronics_5.json"),
+                "meta": str(amazon_root / "meta_Electronics.json"),
+                "format": "amazon",
+            },
         },
-    },
-    "ape": {
-        "a": {
-            "name": "Cell_Phones",
-            "reviews": r"D:\data\amazon\Cell_Phones_and_Accessories_5.json",
-            "meta":    r"D:\data\amazon\meta_Cell_Phones_and_Accessories.json",
-            "format": "amazon",
+        "dbm": {
+            "a": {
+                "name": "Douban_Book",
+                "reviews": str(douban_root / "bookreviews_cleaned.txt"),
+                "meta": str(douban_root / "bookreviews_cleaned.txt"),
+                "format": "douban",
+            },
+            "b": {
+                "name": "Douban_Movie",
+                "reviews": str(douban_root / "moviereviews_cleaned.txt"),
+                "meta": str(douban_root / "moviereviews_cleaned.txt"),
+                "format": "douban",
+            },
         },
-        "b": {
-            "name": "Electronics",
-            "reviews": r"D:\data\amazon\Electronics_5.json",
-            "meta":    r"D:\data\amazon\meta_Electronics.json",
-            "format": "amazon",
-        },
-    },
-    "dbm": {
-        "a": {
-            "name": "Douban_Book",
-            "reviews": r"D:\data\douban\bookreviews_cleaned.txt",
-            "meta":    r"D:\data\douban\bookreviews_cleaned.txt",
-            "format": "douban",
-        },
-        "b": {
-            "name": "Douban_Movie",
-            "reviews": r"D:\data\douban\moviereviews_cleaned.txt",
-            "meta":    r"D:\data\douban\moviereviews_cleaned.txt",
-            "format": "douban",
-        },
-    },
-}
+    }
 
 
 # ---- Text cleaning ----
 
 def clean_text(raw_text):
-    """Consistent with data_process/utils.py:clean_text"""
+    """Consistent with data_preprocessing/utils.py:clean_text"""
     if raw_text is None:
         return ""
     if isinstance(raw_text, list):
@@ -374,13 +378,17 @@ def process_cross_domain(output_name, domain_a, domain_b, output_root):
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Build cross-domain datasets for LETTER."
+        description="Build mixed-sequence cross-domain datasets for the benchmark."
     )
     parser.add_argument("--name", type=str, default="",
                         choices=["asc", "ape", "dbm", ""],
                         help="Cross-domain dataset name. Omit to build all three.")
     parser.add_argument("--output_root", type=str, default="data",
                         help="Output root directory.")
+    parser.add_argument("--amazon_root", type=str, default=os.getenv("AMAZON_RAW_ROOT", ""),
+                        help="Amazon raw data directory; defaults to AMAZON_RAW_ROOT.")
+    parser.add_argument("--douban_root", type=str, default=os.getenv("DOUBAN_RAW_ROOT", ""),
+                        help="Douban raw data directory; defaults to DOUBAN_RAW_ROOT.")
     return parser.parse_args()
 
 
@@ -388,20 +396,27 @@ def main():
     args = parse_args()
 
     output_root = os.path.abspath(args.output_root)
+    if args.name in ("asc", "ape") and not args.amazon_root:
+        raise ValueError("Set AMAZON_RAW_ROOT or pass --amazon_root.")
+    if args.name == "dbm" and not args.douban_root:
+        raise ValueError("Set DOUBAN_RAW_ROOT or pass --douban_root.")
+    if not args.name and (not args.amazon_root or not args.douban_root):
+        raise ValueError("Building all datasets requires AMAZON_RAW_ROOT and DOUBAN_RAW_ROOT.")
+    configs = build_cross_domain_configs(args.amazon_root, args.douban_root)
 
     if args.name:
-        cfg = CROSS_DOMAIN_CONFIGS[args.name]
+        cfg = configs[args.name]
         process_cross_domain(args.name, cfg["a"], cfg["b"], output_root)
     else:
-        for name, cfg in CROSS_DOMAIN_CONFIGS.items():
+        for name, cfg in configs.items():
             process_cross_domain(name, cfg["a"], cfg["b"], output_root)
 
     print(f"\n{'='*60}")
     print("All cross-domain datasets built.")
     print(f"Next: run text embedding for each:")
-    print(f"  python data_process/aliyun_text_emb.py --dataset asc --root data --field_mode join")
-    print(f"  python data_process/aliyun_text_emb.py --dataset ape --root data --field_mode join")
-    print(f"  python data_process/aliyun_text_emb.py --dataset dbm --root data --field_mode join")
+    print(f"  python data_preprocessing/aliyun_text_emb.py --dataset asc --root data --field_mode join")
+    print(f"  python data_preprocessing/aliyun_text_emb.py --dataset ape --root data --field_mode join")
+    print(f"  python data_preprocessing/aliyun_text_emb.py --dataset dbm --root data --field_mode join")
 
 
 if __name__ == "__main__":

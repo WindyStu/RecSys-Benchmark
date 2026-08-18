@@ -89,7 +89,42 @@ data/CDSR/<pair>/
 └── map_user.txt
 ```
 
-Preprocessing scripts come from the local `my_letter/data_process` codebase and are copied in sanitized form. Any text embedding key must be passed through environment variables such as `ALIYUN_API_KEY`; never hard-code keys in source files.
+Reusable preprocessing is maintained independently from all paper baselines:
+
+```text
+data_preprocessing/
+├── preprocess_amazon.py        # Amazon and Douban SDSR JSON
+├── preprocess_cross_domain.py  # mixed CDSR sequences and ID maps
+├── aliyun_text_emb.py          # Aliyun text embeddings
+├── amazon_text_emb.py          # local-model text embeddings
+└── utils.py
+```
+
+Example commands:
+
+```bash
+# Single-domain Amazon data
+export RECSYS_RAW_DATA_ROOT=/path/to/amazon/raw
+python data_preprocessing/preprocess_amazon.py \
+  --format amazon \
+  --dataset Sports_and_Outdoors \
+  --output_root data/SDSR
+
+# Cross-domain ASC data (Sports + Clothing)
+export AMAZON_RAW_ROOT=/path/to/amazon/raw
+python data_preprocessing/preprocess_cross_domain.py \
+  --name asc \
+  --output_root data/CDSR
+
+# Text embeddings; ALIYUN_BASE_URL is optional
+export ALIYUN_API_KEY=your_api_key
+python data_preprocessing/aliyun_text_emb.py \
+  --dataset asc \
+  --root data/CDSR \
+  --field_mode join
+```
+
+Raw paths and API credentials are supplied through CLI arguments or environment variables. No author-specific path, credential, raw dataset, or generated embedding is committed.
 
 ## Quick Start
 
@@ -210,22 +245,105 @@ Do not compare `full` and `sampled` rows in the same primary leaderboard.
 
 ## Metrics
 
-For user `u`, let `R_u^K` be the top-K recommended list and `G_u` be the ground-truth relevant set.
+Let $\mathcal{U}$ be the evaluated users, $R_u^K=(r_{u,1},\ldots,r_{u,K})$ the top-$K$ list for user $u$, and $G_u$ the ground-truth relevant set. Define $\operatorname{rel}_{u,i}=1$ when $r_{u,i}\in G_u$, otherwise $0$. Metrics are first computed per user and then macro-averaged unless stated otherwise:
 
-- `Recall@K = |R_u^K intersect G_u| / |G_u|`
-- `Precision@K = |R_u^K intersect G_u| / K`
-- `HitRate@K = 1[|R_u^K intersect G_u| > 0]`
-- `DCG@K = sum_i rel_i / log2(i + 1)`
-- `NDCG@K = DCG@K / IDCG@K`
-- `MRR@K = 1 / rank(first relevant item)`, or `0` if there is no hit.
-- `MAP@K` averages precision values at relevant hit positions up to K.
-- `ItemCoverage@K` is the count of unique recommended items.
-- `CatalogCoverage@K = unique recommended items / catalog size`.
-- `Novelty@K` averages `-log2(item popularity probability)`.
-- `IntraListDiversity@K` averages pairwise item distance when item vectors or categories exist; otherwise `N/A`.
-- `DomainRecall@K`, `DomainNDCG@K`, and `DomainCoverage@K` compute the same ideas inside each domain.
-- `DomainMixRatio@K` reports the recommendation share of each domain.
-- `CrossDomainTransferGap@K` is the difference between the best and worst domain recall.
+$$
+\operatorname{Metric}@K=\frac{1}{|\mathcal{U}|}\sum_{u\in\mathcal{U}}\operatorname{Metric}_u@K.
+$$
+
+### Accuracy
+
+$$
+\operatorname{Recall}_u@K=\frac{|R_u^K\cap G_u|}{|G_u|}
+$$
+
+$$
+\operatorname{Precision}_u@K=\frac{|R_u^K\cap G_u|}{K}
+$$
+
+$$
+\operatorname{HitRate}_u@K=\mathbb{1}\left[|R_u^K\cap G_u|>0\right]
+$$
+
+With one ground-truth item per user, as in leave-one-out evaluation, `Recall@K` and `HitRate@K` are numerically identical.
+
+$$
+\operatorname{DCG}_u@K=\sum_{i=1}^{K}\frac{\operatorname{rel}_{u,i}}{\log_2(i+1)}
+$$
+
+$$
+\operatorname{IDCG}_u@K=\sum_{i=1}^{\min(|G_u|,K)}\frac{1}{\log_2(i+1)},\qquad
+\operatorname{NDCG}_u@K=\frac{\operatorname{DCG}_u@K}{\operatorname{IDCG}_u@K}
+$$
+
+If the first relevant item appears at rank $q_u\le K$, reciprocal rank is $1/q_u$; otherwise it is zero:
+
+$$
+\operatorname{MRR}@K=\frac{1}{|\mathcal{U}|}\sum_{u\in\mathcal{U}}\mathbb{1}[q_u\le K]\frac{1}{q_u}
+$$
+
+$$
+\operatorname{AP}_u@K=
+\frac{1}{\min(|G_u|,K)}
+\sum_{i=1}^{K}\operatorname{Precision}_u@i\cdot\operatorname{rel}_{u,i},\qquad
+\operatorname{MAP}@K=\frac{1}{|\mathcal{U}|}\sum_{u\in\mathcal{U}}\operatorname{AP}_u@K
+$$
+
+### Coverage, Novelty, and Diversity
+
+Let $\mathcal{I}$ be the item catalog and $\mathcal{I}_K=\bigcup_{u\in\mathcal{U}}R_u^K$.
+
+$$
+\operatorname{ItemCoverage}@K=|\mathcal{I}_K|,\qquad
+\operatorname{CatalogCoverage}@K=\frac{|\mathcal{I}_K|}{|\mathcal{I}|}
+$$
+
+For item popularity probability $p(i)$ estimated from interaction counts:
+
+$$
+\operatorname{Novelty}@K=
+\frac{1}{\sum_{u\in\mathcal{U}}|R_u^K|}
+\sum_{u\in\mathcal{U}}\sum_{i\in R_u^K}-\log_2 p(i)
+$$
+
+For item distance $d(i,j)$, the per-user intra-list diversity is:
+
+$$
+\operatorname{ILD}_u@K=
+\frac{2}{K(K-1)}\sum_{1\le a<b\le K}d(r_{u,a},r_{u,b})
+$$
+
+`IntraListDiversity@K` is the macro-average of valid user-level ILD values. The evaluator currently uses cosine distance when item vectors are provided.
+
+### Cross-domain Metrics
+
+Let $\mathcal{I}_d$ be the catalog of domain $d$, $G_{u,d}=G_u\cap\mathcal{I}_d$, and $\mathcal{U}_d=\{u:|G_{u,d}|>0\}$. `DomainRecall@K:d` and `DomainNDCG@K:d` use the same formulas above but average only over $\mathcal{U}_d$.
+
+$$
+\operatorname{DomainCoverage}@K:d=
+\frac{|\mathcal{I}_K\cap\mathcal{I}_d|}{|\mathcal{I}_d|}
+$$
+
+$$
+\operatorname{DomainMixRatio}@K:d=
+\frac{\sum_{u\in\mathcal{U}}\sum_{i\in R_u^K}\mathbb{1}[i\in\mathcal{I}_d]}
+{\sum_{u\in\mathcal{U}}|R_u^K|}
+$$
+
+$$
+\operatorname{CrossDomainTransferGap}@K=
+\max_d\operatorname{DomainRecall}@K:d-
+\min_d\operatorname{DomainRecall}@K:d
+$$
+
+### Availability and `N/A`
+
+- Accuracy metrics require ranked recommendations and ground truth. Native baseline logs that do not expose enough ranking information report unsupported metrics as `N/A`; values are never inferred or fabricated.
+- `CatalogCoverage@K` requires a catalog file.
+- `Novelty@K` requires item interaction counts or popularity metadata.
+- `IntraListDiversity@K` requires at least two recommended items with usable vectors; otherwise it is `N/A`.
+- Domain metrics require item-to-domain labels; domain coverage additionally requires a domain-labeled catalog.
+- Optional metrics with missing metadata may be omitted by the unified evaluator and are displayed as `N/A` by result tables.
 
 See `docs/metrics.md` for details.
 

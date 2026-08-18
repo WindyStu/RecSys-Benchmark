@@ -2,10 +2,10 @@ method_id: data_preprocess_amazon
 display_name: Amazon SDSR Preprocessing
 method_type: component
 status: adapter-ready
-source: baselines/letter/data_process
+source: data_preprocessing
 adapter: recsys_benchmark.adapters.command.CommandAdapter
 supported_tasks: [sdsr]
 supported_eval_inputs: []
 commands:
   prepare: ["python", "preprocess_amazon.py"]
-notes: Extracts sequence interactions and item text from Amazon review and metadata files.
+notes: Extracts sequence interactions and item text from Amazon or Douban raw files. Set RECSYS_RAW_DATA_ROOT or pass --data_root.

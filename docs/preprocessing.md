@@ -1,6 +1,6 @@
 # Preprocessing
 
-The preprocessing scripts are based on the local `my_letter/data_process` code.
+Reusable preprocessing scripts live in the repository-level `data_preprocessing/` directory. They are independent of paper baseline implementations under `baselines/`.
 
 ## SDSR
 
@@ -9,6 +9,8 @@ The preprocessing scripts are based on the local `my_letter/data_process` code.
 3. Extract item text and metadata into `<dataset>.item.json`.
 4. Optionally generate semantic IDs in `<dataset>.index.json`.
 5. Optionally encode item text into `<dataset>.emb-*.npy`.
+
+Set `RECSYS_RAW_DATA_ROOT` or pass `--data_root` to `data_preprocessing/preprocess_amazon.py`.
 
 ## CDSR
 
@@ -19,12 +21,15 @@ The preprocessing scripts are based on the local `my_letter/data_process` code.
 5. Save `map_item.txt` and `map_user.txt`.
 6. Optionally encode the merged item text file into text embeddings.
 
+Set `AMAZON_RAW_ROOT` and/or `DOUBAN_RAW_ROOT`, then run `data_preprocessing/preprocess_cross_domain.py`.
+
 ## Secrets
 
 Embedding APIs must read keys from environment variables:
 
 ```powershell
 $env:ALIYUN_API_KEY="..."
+$env:ALIYUN_BASE_URL="https://dashscope.aliyuncs.com/compatible-mode/v1" # optional
 ```
 
 Never store keys in source code or YAML configs.

@@ -40,7 +40,7 @@ DATASET_MAP_DOUBAN = {
     "movie": "Douban_Movie",
 }
 
-# ---- Text cleaning (consistent with data_process/utils.py:clean_text) ----
+# ---- Text cleaning (consistent with data_preprocessing/utils.py:clean_text) ----
 
 
 def clean_text(raw_text):
@@ -546,11 +546,11 @@ def process_dataset_douban(prefix, output_name, data_root, output_root,
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Preprocess Amazon 5-core / Douban data into LETTER format."
+        description="Preprocess Amazon 5-core / Douban data into benchmark JSON format."
     )
     parser.add_argument(
-        "--data_root", type=str, default=r"D:\data\amazon",
-        help="Directory containing raw review and metadata files."
+        "--data_root", type=str, default=os.getenv("RECSYS_RAW_DATA_ROOT", ""),
+        help="Directory containing raw review and metadata files; defaults to RECSYS_RAW_DATA_ROOT."
     )
     parser.add_argument(
         "--output_root", type=str, default="data",
@@ -574,6 +574,8 @@ def parse_args():
 
 def main():
     args = parse_args()
+    if not args.data_root:
+        raise ValueError("Set RECSYS_RAW_DATA_ROOT or pass --data_root.")
 
     # Resolve absolute paths
     data_root = os.path.abspath(args.data_root)
