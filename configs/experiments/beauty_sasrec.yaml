@@ -1,0 +1,8 @@
+experiment_id: beauty_sasrec
+dataset: beauty
+method: sasrec
+seed: 3407
+evaluation:
+  protocol: full
+  cutoffs: [5, 10]
+output_root: outputs/runs

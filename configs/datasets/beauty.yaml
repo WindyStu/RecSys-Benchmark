@@ -8,4 +8,6 @@ files:
   semantic_index: Beauty.index.json
 domains:
   - Beauty
+native_ids:
+  sasrec_family: abeauty
 notes: Real processed data are local-only and must not be committed.

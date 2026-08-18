@@ -31,10 +31,10 @@ Integrated rankers are methods intended to enter leaderboard tables after their 
 | `merit` | MERIT | ranker | `baselines/merit` | source-integrated |
 | `eager` | EAGER | ranker | `baselines/eager` | source-integrated |
 | `tri_cdr` | Tri-CDR | ranker | `baselines/tri_cdr` | source-integrated |
-| `sasrec` | SASRec | ranker | `baselines/sasrec_bert4rec_st_loo` | source-integrated |
-| `bert4rec` | BERT4Rec | ranker | `baselines/sasrec_bert4rec_st_loo` | source-integrated |
+| `sasrec` | SASRec | ranker | `baselines/sasrec_bert4rec_st_loo` | adapter-ready |
+| `bert4rec` | BERT4Rec | ranker | `baselines/sasrec_bert4rec_st_loo` | adapter-ready |
 | `sr_gnn` | SR-GNN | ranker | `baselines/sasrec_bert4rec_st_loo` | partial |
-| `stosa` | STOSA | ranker | `baselines/sasrec_bert4rec_st_loo` | source-integrated |
+| `stosa` | STOSA | ranker | `baselines/sasrec_bert4rec_st_loo` | adapter-ready |
 | `cf_sasrec` | CF-SASRec | ranker | `baselines/letter/CF-SASRec` | source-integrated |
 | `letter_tiger` | LETTER-TIGER | ranker | `baselines/letter/LETTER-TIGER` | source-integrated |
 | `letter_lc_rec` | LETTER-LC-Rec | ranker | `baselines/letter/LETTER-LC-Rec` | source-integrated |
@@ -138,6 +138,16 @@ python -m recsys_benchmark run \
   --config configs/experiments/toy_sdsr_sasrec_dryrun.yaml \
   --dry-run
 ```
+
+Run a SASRec-family method on local Beauty data after setting `RECSYS_DATA_ROOT` to the directory that contains `data_SDSR`:
+
+```bash
+python -m recsys_benchmark run \
+  --config configs/experiments/beauty_sasrec.yaml \
+  --override method.defaults.cuda=0
+```
+
+Use `beauty_bert4rec.yaml` or `beauty_stosa.yaml` for the other two methods. These adapters prepare the baseline-specific sequence files, invoke the original trainer, and collect the final native HR/NDCG/MRR row into `metrics.json`. Their status remains below `runnable` until a real server run succeeds.
 
 Inspect method readiness:
 

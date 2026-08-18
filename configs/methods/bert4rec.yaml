@@ -1,12 +1,20 @@
 method_id: bert4rec
 display_name: BERT4Rec
 method_type: ranker
-status: source-integrated
+status: adapter-ready
 source: baselines/sasrec_bert4rec_st_loo
 adapter: recsys_benchmark.adapters.sasrec_bert4rec.SASRecBERT4RecAdapter
 supported_tasks: [sdsr, cdsr]
 supported_eval_inputs: [candidate_scores, topk]
 paper: "BERT4Rec: Sequential Recommendation with Bidirectional Encoder Representations from Transformer"
 commands:
-  train: ["python", "main_st.py", "--m", "bert4rec", "--data", "{dataset.dataset_id}", "--seed", "{seed}", "--eval_mode", "{evaluation.protocol}"]
-notes: Source and train command are integrated. Unified prediction export is still required before this method is runnable in the benchmark.
+  prepare: ["python", "scripts/prepare_sdsr_data.py", "single", "--source-root", "{dataset.path_root}", "--target-root", "data", "--domain", "{dataset.dataset_id}", "--out-name", "{dataset.native_ids.sasrec_family}", "--len-max", "{method.defaults.len_max}"]
+  train: ["python", "main_st.py", "--m", "bert4rec", "--data", "{dataset.native_ids.sasrec_family}", "--raw", "--len_max", "{method.defaults.len_max}", "--cuda", "{method.defaults.cuda}", "--seed", "{seed}", "--eval_mode", "{evaluation.protocol}"]
+native_metrics:
+  type: sasrec_st_log
+  log_dir: "{method.source}/log"
+  pattern: "bert4rec-st-{dataset.native_ids.sasrec_family}-*.log"
+defaults:
+  len_max: 50
+  cuda: "0"
+notes: Prepare, train, and native metric collection are wired. Server/GPU validation is still required before marking runnable.

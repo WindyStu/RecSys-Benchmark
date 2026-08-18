@@ -1,0 +1,8 @@
+experiment_id: beauty_stosa
+dataset: beauty
+method: stosa
+seed: 3407
+evaluation:
+  protocol: full
+  cutoffs: [5, 10]
+output_root: outputs/runs

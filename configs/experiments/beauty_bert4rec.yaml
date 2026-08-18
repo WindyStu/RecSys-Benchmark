@@ -1,0 +1,8 @@
+experiment_id: beauty_bert4rec
+dataset: beauty
+method: bert4rec
+seed: 3407
+evaluation:
+  protocol: full
+  cutoffs: [5, 10]
+output_root: outputs/runs
