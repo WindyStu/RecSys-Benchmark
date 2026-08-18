@@ -107,6 +107,8 @@ class SRGNN(nn.Module):
         super().__init__()
 
         # load parameters info
+        self.device = args.device
+        self.n_items = args.n_item + 1
         self.embedding_size = args.d_latent
         self.step = args.n_gnn
 
@@ -123,7 +125,7 @@ class SRGNN(nn.Module):
         self.linear_transform = nn.Linear(
             self.embedding_size * 2, self.embedding_size, bias=True
         )
-        self.loss_fct = nn.CrossEntropyLoss()
+        self.loss_fct = nn.CrossEntropyLoss(ignore_index=0)
 
         # parameters initialization
         self._reset_parameters()

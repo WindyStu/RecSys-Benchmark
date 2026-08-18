@@ -13,7 +13,7 @@ def main():
     parser = argparse.ArgumentParser(description='ST-SDSR Baselines')
 
     # Model
-    parser.add_argument('--m', type=str, default='sasrec', help='sasrec, bert4rec, stosa')
+    parser.add_argument('--m', type=str, default='sasrec', help='sasrec, bert4rec, stosa, sr_gnn')
     parser.add_argument('--data', type=str, default='abeauty')
 
     # data
@@ -32,6 +32,7 @@ def main():
     parser.add_argument('--dropout', type=float, default=0.3, help='dropout rate for gnn')
     parser.add_argument('--temp', type=float, default=0.75, help='loss temperature')
     parser.add_argument('--margin', type=float, default=0.0, help='margin for STOSA sampled pairwise loss')
+    parser.add_argument('--n_gnn', type=int, default=1, help='# propagation steps for SR-GNN')
 
     # Training
     parser.add_argument('--cuda', type=str, default='0', help='running device')
@@ -92,6 +93,8 @@ def main():
         from trainers.trainer_BERT4Rec_st import Trainer
     elif args.m == 'stosa':
         from trainers.trainer_STOSA_st import Trainer
+    elif args.m == 'sr_gnn':
+        from trainers.trainer_SRGNN_st import Trainer
     else:
         raise NotImplementedError(f'Model {args.m} not implemented.')
     trainer = Trainer(args, noter)

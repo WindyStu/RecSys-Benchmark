@@ -1,12 +1,21 @@
 method_id: sr_gnn
 display_name: SR-GNN
 method_type: ranker
-status: partial
+status: adapter-ready
 source: baselines/sasrec_bert4rec_st_loo
 adapter: recsys_benchmark.adapters.sasrec_bert4rec.SASRecBERT4RecAdapter
 supported_tasks: [sdsr]
 supported_eval_inputs: [candidate_scores, topk]
 paper: "Session-based Recommendation with Graph Neural Networks"
 commands:
-  train: ["python", "main_st.py", "--m", "sr_gnn", "--data", "{dataset.dataset_id}", "--seed", "{seed}"]
-notes: SR-GNN source file exists, but the sanitized main_st/main_mt/main_dt entrypoints do not currently dispatch to sr_gnn. Needs an entrypoint adapter before runnable.
+  prepare: ["python", "scripts/prepare_sdsr_data.py", "single", "--source-root", "{dataset.path_root}", "--target-root", "data", "--domain", "{dataset.dataset_id}", "--out-name", "{dataset.native_ids.sasrec_family}", "--len-max", "{method.defaults.len_max}"]
+  train: ["python", "main_st.py", "--m", "sr_gnn", "--data", "{dataset.native_ids.sasrec_family}", "--raw", "--len_max", "{method.defaults.len_max}", "--n_gnn", "{method.defaults.n_gnn}", "--cuda", "{method.defaults.cuda}", "--seed", "{seed}", "--eval_mode", "{evaluation.protocol}"]
+native_metrics:
+  type: sasrec_st_log
+  log_dir: "{method.source}/log"
+  pattern: "sr_gnn-st-{dataset.native_ids.sasrec_family}-*.log"
+defaults:
+  len_max: 50
+  n_gnn: 1
+  cuda: "0"
+notes: Native SR-GNN training, SDSR preparation, full or sampled ranking, and log metric collection are wired. Server/GPU validation is still required before marking runnable.

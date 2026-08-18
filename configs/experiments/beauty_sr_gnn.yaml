@@ -1,0 +1,8 @@
+experiment_id: beauty_sr_gnn
+dataset: beauty
+method: sr_gnn
+seed: 3407
+evaluation:
+  protocol: full
+  cutoffs: [5, 10]
+output_root: outputs/runs
