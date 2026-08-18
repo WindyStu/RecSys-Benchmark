@@ -245,71 +245,71 @@ Do not compare `full` and `sampled` rows in the same primary leaderboard.
 
 ## Metrics
 
-Let $\mathcal{U}$ be the evaluated users, $R_u^K=(r_{u,1},\ldots,r_{u,K})$ the top-$K$ list for user $u$, and $G_u$ the ground-truth relevant set. Define $\operatorname{rel}_{u,i}=1$ when $r_{u,i}\in G_u$, otherwise $0$. Metrics are first computed per user and then macro-averaged unless stated otherwise:
+Let $`\mathcal{U}`$ be the evaluated users, $`R_u^K=(r_{u,1},\ldots,r_{u,K})`$ the top-$`K`$ list for user $`u`$, and $`G_u`$ the ground-truth relevant set. Define $`\mathrm{rel}_{u,i}=1`$ when $`r_{u,i}\in G_u`$, otherwise $`0`$. Metrics are first computed per user and then macro-averaged unless stated otherwise:
 
 $$
-\operatorname{Metric}@K=\frac{1}{|\mathcal{U}|}\sum_{u\in\mathcal{U}}\operatorname{Metric}_u@K.
+\mathrm{Metric}@K=\frac{1}{|\mathcal{U}|}\sum_{u\in\mathcal{U}}\mathrm{Metric}_u@K.
 $$
 
 ### Accuracy
 
 $$
-\operatorname{Recall}_u@K=\frac{|R_u^K\cap G_u|}{|G_u|}
+\mathrm{Recall}_u@K=\frac{|R_u^K\cap G_u|}{|G_u|}
 $$
 
 $$
-\operatorname{Precision}_u@K=\frac{|R_u^K\cap G_u|}{K}
+\mathrm{Precision}_u@K=\frac{|R_u^K\cap G_u|}{K}
 $$
 
 $$
-\operatorname{HitRate}_u@K=\mathbb{1}\left[|R_u^K\cap G_u|>0\right]
+\mathrm{HitRate}_u@K=\mathbb{1}\left[|R_u^K\cap G_u|>0\right]
 $$
 
 With one ground-truth item per user, as in leave-one-out evaluation, `Recall@K` and `HitRate@K` are numerically identical.
 
 $$
-\operatorname{DCG}_u@K=\sum_{i=1}^{K}\frac{\operatorname{rel}_{u,i}}{\log_2(i+1)}
+\mathrm{DCG}_u@K=\sum_{i=1}^{K}\frac{\mathrm{rel}_{u,i}}{\log_2(i+1)}
 $$
 
 $$
-\operatorname{IDCG}_u@K=\sum_{i=1}^{\min(|G_u|,K)}\frac{1}{\log_2(i+1)},\qquad
-\operatorname{NDCG}_u@K=\frac{\operatorname{DCG}_u@K}{\operatorname{IDCG}_u@K}
+\mathrm{IDCG}_u@K=\sum_{i=1}^{\min(|G_u|,K)}\frac{1}{\log_2(i+1)},\qquad
+\mathrm{NDCG}_u@K=\frac{\mathrm{DCG}_u@K}{\mathrm{IDCG}_u@K}
 $$
 
-If the first relevant item appears at rank $q_u\le K$, reciprocal rank is $1/q_u$; otherwise it is zero:
+If the first relevant item appears at rank $`q_u\le K`$, reciprocal rank is $`1/q_u`$; otherwise it is zero:
 
 $$
-\operatorname{MRR}@K=\frac{1}{|\mathcal{U}|}\sum_{u\in\mathcal{U}}\mathbb{1}[q_u\le K]\frac{1}{q_u}
+\mathrm{MRR}@K=\frac{1}{|\mathcal{U}|}\sum_{u\in\mathcal{U}}\mathbb{1}[q_u\le K]\frac{1}{q_u}
 $$
 
 $$
-\operatorname{AP}_u@K=
+\mathrm{AP}_u@K=
 \frac{1}{\min(|G_u|,K)}
-\sum_{i=1}^{K}\operatorname{Precision}_u@i\cdot\operatorname{rel}_{u,i},\qquad
-\operatorname{MAP}@K=\frac{1}{|\mathcal{U}|}\sum_{u\in\mathcal{U}}\operatorname{AP}_u@K
+\sum_{i=1}^{K}\mathrm{Precision}_u@i\cdot\mathrm{rel}_{u,i},\qquad
+\mathrm{MAP}@K=\frac{1}{|\mathcal{U}|}\sum_{u\in\mathcal{U}}\mathrm{AP}_u@K
 $$
 
 ### Coverage, Novelty, and Diversity
 
-Let $\mathcal{I}$ be the item catalog and $\mathcal{I}_K=\bigcup_{u\in\mathcal{U}}R_u^K$.
+Let $`\mathcal{I}`$ be the item catalog and $`\mathcal{I}_K=\bigcup_{u\in\mathcal{U}}R_u^K`$.
 
 $$
-\operatorname{ItemCoverage}@K=|\mathcal{I}_K|,\qquad
-\operatorname{CatalogCoverage}@K=\frac{|\mathcal{I}_K|}{|\mathcal{I}|}
+\mathrm{ItemCoverage}@K=|\mathcal{I}_K|,\qquad
+\mathrm{CatalogCoverage}@K=\frac{|\mathcal{I}_K|}{|\mathcal{I}|}
 $$
 
-For item popularity probability $p(i)$ estimated from interaction counts:
+For item popularity probability $`p(i)`$ estimated from interaction counts:
 
 $$
-\operatorname{Novelty}@K=
+\mathrm{Novelty}@K=
 \frac{1}{\sum_{u\in\mathcal{U}}|R_u^K|}
 \sum_{u\in\mathcal{U}}\sum_{i\in R_u^K}-\log_2 p(i)
 $$
 
-For item distance $d(i,j)$, the per-user intra-list diversity is:
+For item distance $`d(i,j)`$, the per-user intra-list diversity is:
 
 $$
-\operatorname{ILD}_u@K=
+\mathrm{ILD}_u@K=
 \frac{2}{K(K-1)}\sum_{1\le a<b\le K}d(r_{u,a},r_{u,b})
 $$
 
@@ -317,23 +317,23 @@ $$
 
 ### Cross-domain Metrics
 
-Let $\mathcal{I}_d$ be the catalog of domain $d$, $G_{u,d}=G_u\cap\mathcal{I}_d$, and $\mathcal{U}_d=\{u:|G_{u,d}|>0\}$. `DomainRecall@K:d` and `DomainNDCG@K:d` use the same formulas above but average only over $\mathcal{U}_d$.
+Let $`\mathcal{I}_d`$ be the catalog of domain $`d`$, $`G_{u,d}=G_u\cap\mathcal{I}_d`$, and $`\mathcal{U}_d=\{u:|G_{u,d}|>0\}`$. `DomainRecall@K:d` and `DomainNDCG@K:d` use the same formulas above but average only over $`\mathcal{U}_d`$.
 
 $$
-\operatorname{DomainCoverage}@K:d=
+\mathrm{DomainCoverage}@K:d=
 \frac{|\mathcal{I}_K\cap\mathcal{I}_d|}{|\mathcal{I}_d|}
 $$
 
 $$
-\operatorname{DomainMixRatio}@K:d=
+\mathrm{DomainMixRatio}@K:d=
 \frac{\sum_{u\in\mathcal{U}}\sum_{i\in R_u^K}\mathbb{1}[i\in\mathcal{I}_d]}
 {\sum_{u\in\mathcal{U}}|R_u^K|}
 $$
 
 $$
-\operatorname{CrossDomainTransferGap}@K=
-\max_d\operatorname{DomainRecall}@K:d-
-\min_d\operatorname{DomainRecall}@K:d
+\mathrm{CrossDomainTransferGap}@K=
+\max_d\mathrm{DomainRecall}@K:d-
+\min_d\mathrm{DomainRecall}@K:d
 $$
 
 ### Availability and `N/A`
