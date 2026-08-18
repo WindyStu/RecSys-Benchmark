@@ -1,12 +1,21 @@
 method_id: eager
 display_name: EAGER
 method_type: ranker
-status: source-integrated
+status: adapter-ready
 source: baselines/eager
 adapter: recsys_benchmark.adapters.eager.EAGERAdapter
 supported_tasks: [sdsr]
 supported_eval_inputs: [topk]
 paper: "EAGER: Two-Stream Generative Recommender with Behavior-Semantic Collaboration"
 commands:
-  train: ["python", "EAGER/run_sdsr_eager.py", "--dataset", "{dataset.dataset_id}", "--data-root", "{dataset.path_root}", "--output-root", "{output_dir}/native", "--seed", "{seed}"]
-notes: Source and train command are integrated. DIN pretraining and unified prediction export are still required before runnable benchmark use.
+  prepare: ["python", "EAGER/run_sdsr_din.py", "--dataset", "{dataset.dataset_id}", "--data-root", "{dataset.path_root}", "--work-root", "{output_dir}/native/work", "--output-root", "{output_dir}/native", "--batch-number", "{method.defaults.din_batches}", "--eval-every", "0", "--save-every", "0", "--seed", "{seed}"]
+  train: ["python", "EAGER/run_sdsr_eager.py", "--dataset", "{dataset.dataset_id}", "--data-root", "{dataset.path_root}", "--work-root", "{output_dir}/native/work", "--output-root", "{output_dir}/native", "--total-batch-num", "{method.defaults.eager_batches}", "--eval-every", "0", "--save-every", "0", "--topk", "10", "--seed", "{seed}"]
+  predict: ["python", "EAGER/eval_sdsr_eager.py", "--dataset", "{dataset.dataset_id}", "--data-root", "{dataset.path_root}", "--work-root", "{output_dir}/native/work", "--output-root", "{output_dir}/native", "--eval-mode", "full", "--filter-seen", "--topk", "10", "--seed", "{seed}"]
+native_metrics:
+  type: eager_eval_json
+  log_dir: "{output_dir}/native/{dataset.dataset_id}"
+  pattern: eval_results.json
+defaults:
+  din_batches: 80000
+  eager_batches: 60000
+notes: DIN pretraining, EAGER training, full-ranking evaluation, and native metric collection are wired. Server validation is still required.

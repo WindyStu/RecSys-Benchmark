@@ -1,0 +1,8 @@
+experiment_id: beauty_eager
+dataset: beauty
+method: eager
+seed: 2024
+evaluation:
+  protocol: full
+  cutoffs: [5, 10]
+output_root: outputs/runs

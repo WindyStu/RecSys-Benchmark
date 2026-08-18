@@ -29,7 +29,7 @@ Integrated rankers are methods intended to enter leaderboard tables after their 
 | --- | --- | --- | --- | --- |
 | `abxi` | ABXI | ranker | `baselines/abxi` | adapter-ready |
 | `merit` | MERIT | ranker | `baselines/merit` | adapter-ready |
-| `eager` | EAGER | ranker | `baselines/eager` | source-integrated |
+| `eager` | EAGER | ranker | `baselines/eager` | adapter-ready |
 | `tri_cdr` | Tri-CDR | ranker | `baselines/tri_cdr` | source-integrated |
 | `sasrec` | SASRec | ranker | `baselines/sasrec_bert4rec_st_loo` | adapter-ready |
 | `bert4rec` | BERT4Rec | ranker | `baselines/sasrec_bert4rec_st_loo` | adapter-ready |
@@ -150,6 +150,8 @@ python -m recsys_benchmark run \
 Use `beauty_bert4rec.yaml` or `beauty_stosa.yaml` for the other two methods. These adapters prepare the baseline-specific sequence files, invoke the original trainer, and collect the final native HR/NDCG/MRR row into `metrics.json`. Their status remains below `runnable` until a real server run succeeds.
 
 Run a dual-domain ranker on ASC data with `configs/experiments/asc_abxi.yaml` or `configs/experiments/asc_merit.yaml`. The prepare stage remaps the processed mixed sequence into each original implementation's contiguous, 1-based two-domain format. Native A/B metrics are retained as per-domain metrics and macro-averaged for the primary leaderboard columns.
+
+Run EAGER with `configs/experiments/beauty_eager.yaml`. Its adapter executes DIN pretraining, EAGER training, and a separate full-ranking evaluation with seen-item filtering. Override `method.defaults.din_batches` and `method.defaults.eager_batches` for smoke runs; benchmark results should use the documented defaults or explicitly record the overrides.
 
 Inspect method readiness:
 
